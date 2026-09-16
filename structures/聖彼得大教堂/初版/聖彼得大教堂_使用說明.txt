@@ -1,0 +1,80 @@
+﻿聖彼得大教堂與柱廊廣場 — Minecraft 基岩版行為包
+
+依本次七張參考圖重建，遊戲截圖的米黃色立面、灰色肋架圓頂與中殿為主要依據，
+配合實景圖的橢圓廣場、方尖碑和雙噴泉。沒有來源世界，非逐格原檔複製；未見部分依比例補建。
+不包含截圖背景的其他城市建築或像素畫。
+完整尺寸：寬 X=192 × 深 Z=256 × 高 Y=168 格。
+實體方塊：489,465 個；12 分件，每件 X=64、Y=168、Z=64。
+
+一、匯入啟用
+雙擊 聖彼得大教堂.mcpack 以 Minecraft 基岩版匯入，在目標世界的行為包啟用「聖彼得大教堂」。
+使用創造模式、開啟作弊指令，建議先在空白主世界預覽。此檔不是完整世界，也不需要換 db。
+
+二、一行指令自動放好（固定地點）
+/function vatican_260915/place
+
+這個便捷指令固定放在主世界原點 (100,64,100)，不是玩家腳下！
+占用 X=100..291、Y=64..231、Z=100..355。
+先确认該整片範圍可覆蓋，建築空氣也會清除舊方塊。
+它先建立 4 個臨時常載入區域，再等待整個區域就緒，依序載入 12 段，最後移除臨時區域。
+完成需要等候，視裝置與世界而異；不要連續重複執行同一個 place 指令。
+建築正面朝 -Z（北），廣場在前方，主圓頂在後方。
+主入口在約 (196,72,215)，廣場中心約 (196,68,157)。可自行走過去或用 /tp @s 196 75 190。
+若常載入區域已達世界上限，建立時會報錯，請先處理自己的區域配置，或改用下方逐段方式。
+取消等待與清除本包臨時區域：/function vatican_260915/cancel
+本包只移除 vat260915_a、vat260915_b、vat260915_c、vat260915_d 四個專用名稱，不清除其他區域。
+
+三、自訂位置（兩步）
+以原點 (500,64,500) 示範，兩行座標必須一致：
+/execute positioned 500 64 500 run function vatican_260915/prepare
+等候數秒，確認載入區域成功建立後：
+/execute positioned 500 64 500 run function vatican_260915/build
+確認 12 段均完成後：
+/function vatican_260915/cleanup
+此方式請在主世界使用；cleanup 固定清理主世界的專用常載入區域。
+最低角原點就是整組方塊包圍盒的最小 X/Y/Z，不是教堂中心或門口。
+平台地面為 Y+3，教堂地面 Y+7，圓頂最高 Y+167；建議原點 Y=64。
+
+四、結構方塊／逐段指令
+取得結構方塊：/give @s structure_block
+切換「載入」，输入下表完整名稱。各件旋轉 0 度、無鏡像、完整性 100%。
+以下偏移全部相對同一整體原點；順序可按表由上往下。
+vatican_260915:part_0_0    偏移 X=0, Y=0, Z=0    範例 /structure load vatican_260915:part_0_0 100 64 100
+vatican_260915:part_0_1    偏移 X=0, Y=0, Z=64    範例 /structure load vatican_260915:part_0_1 100 64 164
+vatican_260915:part_0_2    偏移 X=0, Y=0, Z=128    範例 /structure load vatican_260915:part_0_2 100 64 228
+vatican_260915:part_0_3    偏移 X=0, Y=0, Z=192    範例 /structure load vatican_260915:part_0_3 100 64 292
+vatican_260915:part_1_0    偏移 X=64, Y=0, Z=0    範例 /structure load vatican_260915:part_1_0 164 64 100
+vatican_260915:part_1_1    偏移 X=64, Y=0, Z=64    範例 /structure load vatican_260915:part_1_1 164 64 164
+vatican_260915:part_1_2    偏移 X=64, Y=0, Z=128    範例 /structure load vatican_260915:part_1_2 164 64 228
+vatican_260915:part_1_3    偏移 X=64, Y=0, Z=192    範例 /structure load vatican_260915:part_1_3 164 64 292
+vatican_260915:part_2_0    偏移 X=128, Y=0, Z=0    範例 /structure load vatican_260915:part_2_0 228 64 100
+vatican_260915:part_2_1    偏移 X=128, Y=0, Z=64    範例 /structure load vatican_260915:part_2_1 228 64 164
+vatican_260915:part_2_2    偏移 X=128, Y=0, Z=128    範例 /structure load vatican_260915:part_2_2 228 64 228
+vatican_260915:part_2_3    偏移 X=128, Y=0, Z=192    範例 /structure load vatican_260915:part_2_3 228 64 292
+放置某段前，確保該段附近區塊已載入；若有需要，移動到該段附近再載入。
+不要單獨旋轉分件後仍使用原偏移。這 12 段組成同一座教堂與廣場，並非 12 座小教堂。
+
+五、建築與室內
+外觀：前立面雙柱、中央拱門、三角山花、屋頂雕像造型、灰色屋脊、小圓頂、
+十字形教堂、主圓頂鼓座、高窗、肋架和頂部十字架。
+廣場：兩側橢圓三列柱廊、屋頂雕像、幾何鋪地、方尖碑及兩座有底與圍邊的噴泉。
+室內：高柱中殿、桶形拱頂、橫向拱肋、兩側長椅、幾何地坪、壁燈、吊燈、
+圓頂環形燈飾、四柱華蓋祭壇和後殿金色十字。
+入口台階通向中殿，中央通路可行走至祭壇前；屋頂和圓頂上層沒有另設觀光樓梯。
+雕像、祭壇、華蓋及長椅為方塊造型；燈籠與海燈籠提供遊戲照明。
+參考圖使用光影，本包使用原版材質，實際色彩和光影取決於遊戲設定。
+
+六、覆蓋與測試狀態
+X=0..191、Y=3..167、Z=0..255 的建模空氣會清空相應空間，平台亦會覆蓋原地形。
+因此整片 192 × 256 的場地都視為施工區；不只是教堂牆壁所在處。
+附圖依最終方塊資料繪製，非遊戲截圖。內部圖移除前立面、部分側壁與屋頂展示。
+格式驗證通過，尚未在遊戲內實測；自動放置流程已按官方語法與分件座標驗證，但也尚未遊戲實測。
+已驗證：12 件 NBT 重新解析、尺寸限制、索引、palette 與 state、每件與最終模型逐格一致、
+主通道淨空、ZIP CRC、manifest、所有函式引用及偏移、兩張最終 PNG。
+宣告最低基岩版 1.21.70；這不是全版本實測相容保證。
+方塊表來源 Mojang v1.21.70.3，表內版本標記 1.21.70-beta.3：
+https://raw.githubusercontent.com/Mojang/bedrock-samples/v1.21.70.3/metadata/vanilladata_modules/mojang-blocks.json
+等待區塊就緒的官方指令說明：
+https://learn.microsoft.com/en-us/minecraft/creator/commands/commands/schedule?view=minecraft-bedrock-stable
+https://learn.microsoft.com/en-us/minecraft/creator/documents/tickingareacommand?view=minecraft-bedrock-stable
+行為包 SHA-256：a05e3b0a426117ef59ae9343c8d347b1190eb602ac3374b85fa832f34398b3b0

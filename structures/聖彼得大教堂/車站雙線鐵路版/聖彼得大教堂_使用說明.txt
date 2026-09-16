@@ -1,0 +1,108 @@
+﻿聖彼得大教堂 — 第三版：中央車站與双線鐵路
+
+一、這次新增
+在第二版建築群正前方擴建 128 格：奶油色砂岩／石英柱式車站、深灰屋頂、時鐘山牆、
+中央候車大廳、售票櫃台、座椅、照明、玻璃列車棚、雙側月台、地下通道與出站廣場。
+兩條原版礦車軌道沿 X 方向由左至右貫通，各長 320 格，共 640 個軌道方塊。
+每 8 格中安排 2 格加速軌，其下有紅石方塊供電；兩軌互不交叉，兩端保留續接接口。
+中央出站口朝 +Z，正對原有教堂中軸。新的站前空地不加遮擋中軸視野的建築或樹木。
+能面向教堂立面上部與完整圓頂輪廓；原廣場柱廊、方尖碑仍保留，會局部遮住低處立面。
+這是基岩版原版礦車鐵路，沒有附加可駕駛列車模組、自動停站控制或列車實體。
+時鐘、售票櫃台與座椅是建築裝飾；燈具可照明。
+
+二、尺寸與更新
+整體：寬 320 × 深 512 × 高 168 格；NBT X=320、Y=168、Z=512。
+實體方塊 1,278,062 個；40 個 64×168×64 分件。
+沿用第二版 UUID，版本升為 3.0.0。匯入本 mcpack，於世界行為包中確認第三版已啟用。
+宣告最低引擎版本 1.21.70。請開啟作弊；先退出正在載入舊版建築的程序再更新。
+匯入行為包不會自行改世界；執行下列指令才會放置。
+
+三、已有第二版：只加車站（建議）
+/function vatican_260915/station
+只放置新增前方區域，共 10 件，不重放原教堂與宮院。
+固定在主世界施工：X=100..419，Y=64..231，Z=-28..99。
+適用於原第二版使用 /function vatican_260915/place 放在固定座標的情況。
+若你以前自行移動／旋轉建築，請依下表重新計算原點，不能直接套用固定座標函式。
+
+四、從空地放置全部建築群
+/function vatican_260915/place
+固定整組最小角原點 (100,64,-28)，不是玩家腳下。
+整片施工範圍 X=100..419、Y=64..231、Z=-28..483，共 40 件。
+第三版的舊核心在整組陣列內向 +Z 移 128 格，但原點向 -Z 移 128 格，
+因此原教堂、廣場與宮院的世界座標完全保持第二版的位置。
+兩種函式都會放入地基及空氣，清空對應施工體積內原有地形或建築；請使用預留空地。
+station 模式不涉及 Z>=100 的原建築群。
+不可同時或重複執行兩種模式。每段等待區塊載入後才放置；速度依裝置而定。
+使用一個專用常載入區域 vat260915_stage，每段最多 25 區塊，完成自動移除。
+若常載入區域名額已滿需先騰出一個名額。
+中止後續放置：/function vatican_260915/cancel（不會回復已放置方塊）
+清除專用殘留區域：/function vatican_260915/cleanup
+
+五、參觀与鐵路續接（世界座標）
+車站中央出口／階梯前：/tp @s 260 76 59
+沿 +Z 方向看，即朝教堂；再向前沿中央大道步行。
+教堂主入口仍約 (260,72,277)。
+第一軌：X=100..419，Y=74，Z=-1；第二軌：X=100..419，Y=74，Z=5。
+往左續接 X=99，往右續接 X=420；鐵軌下方 Y=73 應有支承方塊。
+月台行走高度約 Y=74；地下通道地板 Y=67、行走高度 Y=68。
+地下通道低處 X=214..219，兩側上月台樓梯約 X=220..225、Z=-10..-8 與 14..16。
+中央大廳行走高度 Y=74，出口階梯下降到原廣場道路高度 Y=68。
+礦車需自行放置與啟動，往哪個方向行駛由初始推動方向決定；未設定強制單向行駛。
+
+六、結構方塊名稱與自訂原點
+/give @s structure_block
+切到載入模式，完整性 100%，旋轉 0 度，無鏡像。
+以下全部偏移相對第三版整組原點 (100,64,-28)。分件 iz=0、1 是新增站區；iz=2..7 是舊建築群。
+若舊第二版自訂原點為 (A,B,C)，第三版原點應為 (A,B,C-128)，再加下表偏移。
+手動分件載入時站在該分件附近確保區塊已載入。每個名稱均可用於結構方塊。
+vatican_260915:part_0_0  相對偏移 (0,0,0)  /structure load vatican_260915:part_0_0 100 64 -28
+vatican_260915:part_0_1  相對偏移 (0,0,64)  /structure load vatican_260915:part_0_1 100 64 36
+vatican_260915:part_0_2  相對偏移 (0,0,128)  /structure load vatican_260915:part_0_2 100 64 100
+vatican_260915:part_0_3  相對偏移 (0,0,192)  /structure load vatican_260915:part_0_3 100 64 164
+vatican_260915:part_0_4  相對偏移 (0,0,256)  /structure load vatican_260915:part_0_4 100 64 228
+vatican_260915:part_0_5  相對偏移 (0,0,320)  /structure load vatican_260915:part_0_5 100 64 292
+vatican_260915:part_0_6  相對偏移 (0,0,384)  /structure load vatican_260915:part_0_6 100 64 356
+vatican_260915:part_0_7  相對偏移 (0,0,448)  /structure load vatican_260915:part_0_7 100 64 420
+vatican_260915:part_1_0  相對偏移 (64,0,0)  /structure load vatican_260915:part_1_0 164 64 -28
+vatican_260915:part_1_1  相對偏移 (64,0,64)  /structure load vatican_260915:part_1_1 164 64 36
+vatican_260915:part_1_2  相對偏移 (64,0,128)  /structure load vatican_260915:part_1_2 164 64 100
+vatican_260915:part_1_3  相對偏移 (64,0,192)  /structure load vatican_260915:part_1_3 164 64 164
+vatican_260915:part_1_4  相對偏移 (64,0,256)  /structure load vatican_260915:part_1_4 164 64 228
+vatican_260915:part_1_5  相對偏移 (64,0,320)  /structure load vatican_260915:part_1_5 164 64 292
+vatican_260915:part_1_6  相對偏移 (64,0,384)  /structure load vatican_260915:part_1_6 164 64 356
+vatican_260915:part_1_7  相對偏移 (64,0,448)  /structure load vatican_260915:part_1_7 164 64 420
+vatican_260915:part_2_0  相對偏移 (128,0,0)  /structure load vatican_260915:part_2_0 228 64 -28
+vatican_260915:part_2_1  相對偏移 (128,0,64)  /structure load vatican_260915:part_2_1 228 64 36
+vatican_260915:part_2_2  相對偏移 (128,0,128)  /structure load vatican_260915:part_2_2 228 64 100
+vatican_260915:part_2_3  相對偏移 (128,0,192)  /structure load vatican_260915:part_2_3 228 64 164
+vatican_260915:part_2_4  相對偏移 (128,0,256)  /structure load vatican_260915:part_2_4 228 64 228
+vatican_260915:part_2_5  相對偏移 (128,0,320)  /structure load vatican_260915:part_2_5 228 64 292
+vatican_260915:part_2_6  相對偏移 (128,0,384)  /structure load vatican_260915:part_2_6 228 64 356
+vatican_260915:part_2_7  相對偏移 (128,0,448)  /structure load vatican_260915:part_2_7 228 64 420
+vatican_260915:part_3_0  相對偏移 (192,0,0)  /structure load vatican_260915:part_3_0 292 64 -28
+vatican_260915:part_3_1  相對偏移 (192,0,64)  /structure load vatican_260915:part_3_1 292 64 36
+vatican_260915:part_3_2  相對偏移 (192,0,128)  /structure load vatican_260915:part_3_2 292 64 100
+vatican_260915:part_3_3  相對偏移 (192,0,192)  /structure load vatican_260915:part_3_3 292 64 164
+vatican_260915:part_3_4  相對偏移 (192,0,256)  /structure load vatican_260915:part_3_4 292 64 228
+vatican_260915:part_3_5  相對偏移 (192,0,320)  /structure load vatican_260915:part_3_5 292 64 292
+vatican_260915:part_3_6  相對偏移 (192,0,384)  /structure load vatican_260915:part_3_6 292 64 356
+vatican_260915:part_3_7  相對偏移 (192,0,448)  /structure load vatican_260915:part_3_7 292 64 420
+vatican_260915:part_4_0  相對偏移 (256,0,0)  /structure load vatican_260915:part_4_0 356 64 -28
+vatican_260915:part_4_1  相對偏移 (256,0,64)  /structure load vatican_260915:part_4_1 356 64 36
+vatican_260915:part_4_2  相對偏移 (256,0,128)  /structure load vatican_260915:part_4_2 356 64 100
+vatican_260915:part_4_3  相對偏移 (256,0,192)  /structure load vatican_260915:part_4_3 356 64 164
+vatican_260915:part_4_4  相對偏移 (256,0,256)  /structure load vatican_260915:part_4_4 356 64 228
+vatican_260915:part_4_5  相對偏移 (256,0,320)  /structure load vatican_260915:part_4_5 356 64 292
+vatican_260915:part_4_6  相對偏移 (256,0,384)  /structure load vatican_260915:part_4_6 356 64 356
+vatican_260915:part_4_7  相對偏移 (256,0,448)  /structure load vatican_260915:part_4_7 356 64 420
+
+七、驗證與限制
+格式驗證通過，尚未在 Minecraft 遊戲內實測；原版軌道更新、排程及礦車行駛仍需遊戲內確認。
+已逐件重新解析 40 份 little-endian NBT 並比對最終模型，檢查名稱/狀態、軌道支承與淨空、
+中央出口及地下通道淨空、避開鐵軌的月台至大廳／雙翼／廣場步行动線、舊建築群逐格保留、
+朝教堂上部與圓頂的抽樣視線、函式引用／放置順序／座標和 ZIP CRC。
+兩張 PNG 均由本版最終方塊資料繪製、開啟檢視，非遊戲截圖；純色材質、玻璃及部分方塊形狀簡化。
+內部剖視的切牆／去屋頂僅用於展示，正式結構含完整屋頂。
+官方方塊資料沿用 v1.21.70.3（內部標示 1.21.70-beta.3），不是全版本相容保證：
+https://raw.githubusercontent.com/Mojang/bedrock-samples/v1.21.70.3/metadata/vanilladata_modules/mojang-blocks.json
+SHA-256：d0161164cca4680953c1fd6991be8f4f3153eceb9a303e5338df4ba0937f2c4c
