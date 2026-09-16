@@ -1,0 +1,18 @@
+# OS
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# Editors
+.vscode/
+.idea/
+*.swp
+
+# Claude Code local state
+.claude/settings.local.json
+
+# Temp / build output
+tmp/
+temp/
+*.log
+*.zip
