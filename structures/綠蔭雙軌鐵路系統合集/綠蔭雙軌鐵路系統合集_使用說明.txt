@@ -1,0 +1,95 @@
+﻿綠蔭雙軌鐵路系統合集 — Minecraft 基岩版行為包
+
+本包把先前五個獨立的行為包合併成一個，只需匯入並啟用一次。
+內含 10 個結構，全部使用原版方塊，不需要材質包、模組或車輛。
+結構 ID 與原本各包完全相同，舊的指令與說明可直接沿用；
+若世界已啟用舊的單一包，請改為只啟用本合集，避免同名結構重複。
+
+一、結構清單（寬 X × 深 Z × 高 Y；NBT size 為 X/Y/Z）
+【1. 地面綠蔭鐵路】軌道局部 Y=4，草面 Y=2
+  verdant_rail_260916:straight   29 × 56 × 16（29/16/56）
+  verdant_rail_260916:curve      56 × 56 × 16（56/16/56）
+【2. 地下鐵路】軌道局部 Y=4，地面草方塊 Y=16（軌道在地下 12 格）
+  metro_rail_260916:straight     29 × 56 × 32（29/32/56）
+  metro_rail_260916:curve        56 × 56 × 32（56/32/56）
+【3. 綠蔭高架鐵路】軌道局部 Y=16，草面 Y=2；含 26 級半格步梯與橋下景觀
+  verdant_viaduct_260916:straight 29 × 56 × 26（29/26/56）
+  verdant_viaduct_260916:curve    56 × 56 × 26（56/26/56）
+【4. 高架鐵路（簡潔版）】軌道局部 Y=16，草面 Y=2；含 13 階維修樓梯
+  viaduct_rail_260916:straight   29 × 56 × 32（29/32/56）
+  viaduct_rail_260916:curve      56 × 56 × 32（56/32/56）
+【5. 車站】軌道局部 Y=4，可直接接【1. 地面綠蔭鐵路】
+  verdant_station_260916:suburban 45 × 56 × 20（45/20/56）郊區木屋站，軌道局部 X=20、24
+  verdant_station_260916:central  61 × 64 × 24（61/24/64）中央玻璃大廳站，軌道局部 X=28、32
+
+所有鐵路模組共通：兩條原版礦車鐵軌中心相隔 4 格（中間 3 格）；直線定距放置 golden_rail，
+正下方紅石方塊持續供電；轉彎為原版 90° 彎軌。靜止礦車仍需推動。燈號、告示、售票櫃檯皆為裝飾。
+
+二、匯入與載入
+1. 用 Minecraft 開啟「綠蔭雙軌鐵路系統合集.mcpack」，完成匯入。
+2. 世界設定 → 行為包 → 啟用「綠蔭雙軌鐵路系統合集」。
+3. 開啟允許指令，輸入 /give @s structure_block。
+4. 放置結構方塊，切換「載入」，輸入上方完整 ID，先預覽再載入。不要按儲存覆蓋。
+   也可直接使用下方 /structure load 指令。
+
+三、原點與高度
+原點是包圍盒最小 X/Y/Z 角；X 為東、Z 為南。
+以世界平地草方塊 Y=64 為例，各系列的原點 Y 與軌道世界高度：
+  地面綠蔭 / 車站：原點 Y=62，軌道 Y=66
+  綠蔭高架 / 高架：原點 Y=62，軌道 Y=78
+  地下：          原點 Y=48，軌道 Y=52
+包圍盒內的空氣會清除原有方塊，實體方塊會覆寫原地形。請先在空地或測試世界預覽。
+
+四、接口（局部座標）
+直線：北端 (12,Y,0)、(16,Y,0)；南端 (12,Y,55)、(16,Y,55)。
+轉彎（北入東出）：北端 (12,Y,0)、(16,Y,0)；東端 (55,Y,40)、(55,Y,44)。
+Y 依系列：地面／地下=4，高架=16。四個鐵路系列的直線與轉彎接口 X/Z 完全相同。
+
+五、拼接範例（直線 → 轉彎 → 向東直線；三條指令一起平移即可搬到別處）
+地面綠蔭：
+/structure load verdant_rail_260916:straight 100 62 100
+/structure load verdant_rail_260916:curve 100 62 156
+/structure load verdant_rail_260916:straight 156 62 184 90_degrees
+地下：
+/structure load metro_rail_260916:straight 100 48 100
+/structure load metro_rail_260916:curve 100 48 156
+/structure load metro_rail_260916:straight 156 48 184 90_degrees
+綠蔭高架：
+/structure load verdant_viaduct_260916:straight 100 62 100
+/structure load verdant_viaduct_260916:curve 100 62 156
+/structure load verdant_viaduct_260916:straight 156 62 184 90_degrees
+高架（簡潔版）：
+/structure load viaduct_rail_260916:straight 100 62 100
+/structure load viaduct_rail_260916:curve 100 62 156
+/structure load viaduct_rail_260916:straight 156 62 184 90_degrees
+延伸規則：未旋轉直線每段沿 Z 偏移 56；旋轉 90° 的向東直線每段沿 X 偏移 56。
+旋轉請用結構載入的 rotation 選項。
+
+車站接地面綠蔭直線（兩套範例擇一，不要放在同一位置）：
+A. 郊區站
+/structure load verdant_rail_260916:straight 100 62 100
+/structure load verdant_station_260916:suburban 92 62 156
+/structure load verdant_rail_260916:straight 100 62 212
+B. 中央站
+/structure load verdant_rail_260916:straight 100 62 100
+/structure load verdant_station_260916:central 84 62 156
+/structure load verdant_rail_260916:straight 100 62 220
+規則：直線原點 X=a 時，郊區站原點 X=a-8、中央站 X=a-16；Y 一致；
+下一件 Z 原點加上前一件深度（直線 56、郊區站 56、中央站 64）。
+
+六、系列之間的限制
+地面、高架、地下三種高度的軌道彼此不能直接接軌，本包沒有爬坡／下降過渡段。
+車站只對應地面綠蔭鐵路的軌道高度與 X 位置。
+兩種高架版（綠蔭高架 vs 簡潔高架）軌道高度相同（局部 Y=16），接口位置相同，可以互相拼接，
+但兩者包圍盒高度不同（26 vs 32），景觀風格也不同。
+地下模組的北端與東端是開放隧道斷面，未延伸的接口請自行封閉。
+
+七、版本與驗證
+方塊名稱與 state 依 Mojang bedrock-samples v1.21.60.10 官方方塊表建立；行為包宣告最低引擎 1.21.60。
+https://github.com/Mojang/bedrock-samples/blob/v1.21.60.10/metadata/vanilladata_modules/mojang-blocks.json
+合併時未修改任何 .mcstructure 位元組，僅重新產生 manifest（新的 UUID）並重新打包。
+合併後已重新解析 10 個結構的 NBT：格式版本、尺寸與方塊索引數量、palette 索引範圍，
+以及 ZIP CRC 與包內位元組逐一比對原檔，全部一致。
+各結構的格式驗證在原包已完成，尚未在遊戲內實測；此宣告不代表所有後續版本均已測試。
+預覽圖依最終方塊模型繪製，非遊戲截圖；已整理在「預覽圖」資料夾。
+不需替換世界、db 或資料庫；本包不是 Java schematic。
