@@ -1,0 +1,58 @@
+﻿霜翎軍港 — Minecraft 基岩版 26.50 建築包（與霜翎級輕巡洋艦同一個行為包）
+
+一、作品
+可停泊三艘霜翎級輕巡洋艦（27×120）的軍事港口，本包同時內含輕巡洋艦本體；
+軍港結構本身「不含船」，船用另外的結構 ID 與函式停進泊位。
+寬128 × 深156 × 高32格；結構座標X=128、Y=32、Z=156。非空方塊 183,700 個（含海水），42種方塊。
+本地水面方塊Y=7（水Y1..7、海床Y0），碼頭與棧橋面Y=9。
+陸側碼頭在北側Z0..25：港務指揮大樓與玻璃塔台（X50..78）、拱頂倉庫A/B（X6..36、X86..112）、
+直升機坪（X37..48）、油槽與管線（X114..126）、貨櫃場、旗竿、警衛室、行道樹、服務道路與標線。
+三條棧橋往南延伸 Z26..151：X0..7、X42..49、X84..91，附繫纜樁、護舷、中線標線、燈柱、棧橋末端瞭望欄杆與燈；
+棧橋2、3 各有一座龍門吊車（吊臂平行棧橋停放，不侵入泊位）；東側 X126..127 為防波堤與燈塔。
+三個泊位各寬34格：X8..41、X50..83、X92..125，已驗證泊位包絡內只有水與空氣。
+
+二、匯入
+1. 開啟「霜翎軍港.mcpack」並選Minecraft；本包與「霜翎級輕巡洋艦.mcpack」是同一個包的 1.1.0 版（同UUID），
+   啟用後舊版船包會被取代，船的 ID 與指令不變。
+2. 世界設定→行為包→啟用「霜翎級輕巡洋艦」（顯示名稱沿用船名）。
+3. 開啟作弊，建議創造模式。最低宣告版本1.26.50。
+
+三、放置軍港（不含船）
+選一片 128×156 的區域，原點是包圍盒最小X/Y/Z角。建議放在海上並讓本地Y7對齊海面：
+海面水方塊在 Y=62 時原點 Y=55。以下以原點 (0,55,0) 為例，請整組替換。
+/execute positioned 0 55 0 run function frost_plume/port_prepare
+等區域載入約5秒後：
+/execute positioned 0 55 0 run function frost_plume/port_build
+完成後可 /execute positioned 0 55 0 run function frost_plume/port_cleanup 移除暫時載入區域。
+軍港會在整個 128×32×156 範圍放置方塊（包含海床、海水與上方空氣），原有地形會被覆蓋；放在陸地上也會自己開出水域。
+
+四、把船停進泊位（可選，各泊位一艘）
+船原點相對軍港原點的偏移：泊位1 (12,2,30)、泊位2 (54,2,30)、泊位3 (96,2,30)。
+用同一個原點執行：
+/execute positioned 0 55 0 run function frost_plume/berth1
+/execute positioned 0 55 0 run function frost_plume/berth2
+/execute positioned 0 55 0 run function frost_plume/berth3
+或一次全部（軍港＋三艘船）：/execute positioned 0 55 0 run function frost_plume/port_all
+（先執行 port_prepare 預載）。船首朝北面向碼頭，船尾在棧橋末端側；船殼兩側各留 3–4 格、龍骨離海床 1 格。
+
+五、手動分件
+軍港六件，每件寬64、高32；1–4 深64、5–6 深28。偏移：
+port_1 (0,0,0)、port_2 (64,0,0)、port_3 (0,0,64)、port_4 (64,0,64)、port_5 (0,0,128)、port_6 (64,0,128)
+/structure load frost_plume_260920:port_1 0 55 0 …依此類推；不旋轉、不鏡像。
+船仍為 frost_plume_260920:bow 與 frost_plume_260920:stern（stern 相對 bow 偏移 Z+60）。
+也可 /give @s structure_block 後用「載入」模式輸入完整ID。
+
+六、探索
+指揮大樓入口在南面 X61..67、Z21，中央梯子核心 (64,Y,13) 直通塔台；倉庫大門在南面。
+棧橋可直接走上；燈塔在 (125,Y,142)。範例原點可 /tp @s 64 65 23。
+
+七、驗證狀態
+格式驗證通過，尚未在遊戲內實測。
+已驗證：官方方塊名稱/state 與 NBT 型別、八個結構索引長度、六件重組等於完整軍港模型、船兩件重組等於船模型、
+三個泊位包絡只含水與空氣且水深足夠、ZIP CRC、manifest/UUID 與包內路徑。
+兩張PNG依方塊陣列繪製，非遊戲截圖；水面以示意色平塗。
+
+官方資料與指令參考
+https://github.com/Mojang/bedrock-samples/tree/v1.26.50.4
+https://learn.microsoft.com/en-us/minecraft/creator/documents/structures/introductiontostructureblocks
+https://learn.microsoft.com/en-us/minecraft/creator/documents/tickingareacommand
