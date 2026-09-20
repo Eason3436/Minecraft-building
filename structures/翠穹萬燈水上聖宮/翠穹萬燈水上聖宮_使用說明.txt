@@ -1,0 +1,98 @@
+﻿翠穹萬燈水上聖宮 — Minecraft 基岩版建築包
+
+尺寸：寬256 × 深256 × 高160格；NBT X=256、Y=160、Z=256。
+整體為同一模型，因64格分件限制，切成16件64×160×64，放在同一行為包。
+原點為最小X/Y/Z角，正面朝北（−Z），中心本地(128,128)。
+水面本地Y6，橋面Y12，主廳地板Y18，迴廊Y40/Y62，頂冠最高Y151。
+建築與基底方塊 450,102 個，水方塊 362,885 個。
+光源 10,786 個（含在上述建築數量中），25種實際使用的方塊ID。
+
+一、建築內容
+依九張參考截圖還原辨識特徵：超大型青綠蛋形穹頂、白色肋骨、四座哥德式高塔、
+四向大副殿＋四斜向小副殿、八座外環涼亭、環橋與放射橋、橋下拱券與水面留白。
+白灰主牆採石英、方解石、磨製閃長岩及石磚；凹窗、柱頭、窗框、腰線、玫瑰窗、山牆、尖塔。
+光源沿屋頂肋線、窗、簷口、橋欄與燈柱排列：海燈籠、螢石、兩種蛙明燈、終界燭。
+內部有雙層迴廊、兩段寬樓梯、主廳翼形紀念雕像、放射拼花、座椅、閱讀桌、書架和三級吊燈。
+雕像、桌椅及燈飾為原版方塊造型；高塔主要為外部建築構件，沒有逐層可爬塔樓內裝。
+
+二、匯入與版本
+1. 雙擊「翠穹萬燈水上聖宮.mcpack」，選擇Minecraft匯入。
+2. 世界設定 → 行為包 → 啟用「翠穹萬燈水上聖宮」。
+3. 開啟作弊，使用創造模式。依Mojang官方v1.26.50.4方塊資料表製作，
+   宣告最低引擎1.26.50（遊戲顯示26.50）；不保證更舊版本可用。
+
+三、推薦整組放置（兩步載入＋清理）
+先選好256×256格的空地或水域；本包自帶封底水池。
+以下以原點 (0,56,0) 為例：水面Y62、橋面Y68、主廳地板Y74、頂冠Y207。
+原點不是你站的位置或建築中央，建築佔 X0..255、Z0..255、Y56..215。
+如換地點，請將以下兩條指令的「0 56 0」一起換成同一個整數原點。
+
+第1步：預載四個區域（共需4個可用tickingarea名額）
+/execute positioned 0 56 0 run function emerald_basilica/prepare
+
+等待約5～10秒、確認没有預載錯誤，再執行第2步：
+/execute positioned 0 56 0 run function emerald_basilica/build
+
+16件會依固定偏移放置。整組體積很大，載入時可能暫停回應一段時間。
+等16件全部完成後，執行：
+/function emerald_basilica/cleanup
+
+build不會自動清除預載區，以便遇到某分件失敗時重試；完成後請自行cleanup。
+若已有太多預載區域，請先 /tickingarea list 查看；本包不會刪除其他名稱的預載區。
+較慢裝置可把第2步拆成四條依序執行，每條完成後再下一條：
+/execute positioned 0 56 0 run function emerald_basilica/row_0
+/execute positioned 0 56 0 run function emerald_basilica/row_1
+/execute positioned 0 56 0 run function emerald_basilica/row_2
+/execute positioned 0 56 0 run function emerald_basilica/row_3
+
+四、手動分件或結構方塊
+/give @s structure_block
+放下後切換「載入」，輸入完整ID，例如 emerald_basilica_260920:tile_x0_z0。
+每件64×160×64，tile_xI_zJ偏移為(I×64,0,J×64)，I、J=0..3。
+不旋轉、不鏡像，完整性100%，無需載入實體。若要旋轉整棟，不能只各自旋轉分件。
+同一原點(0,56,0)的完整16條指令如下（先確保區域已載入）：
+/structure load emerald_basilica_260920:tile_x0_z0 0 56 0
+/structure load emerald_basilica_260920:tile_x0_z1 0 56 64
+/structure load emerald_basilica_260920:tile_x0_z2 0 56 128
+/structure load emerald_basilica_260920:tile_x0_z3 0 56 192
+/structure load emerald_basilica_260920:tile_x1_z0 64 56 0
+/structure load emerald_basilica_260920:tile_x1_z1 64 56 64
+/structure load emerald_basilica_260920:tile_x1_z2 64 56 128
+/structure load emerald_basilica_260920:tile_x1_z3 64 56 192
+/structure load emerald_basilica_260920:tile_x2_z0 128 56 0
+/structure load emerald_basilica_260920:tile_x2_z1 128 56 64
+/structure load emerald_basilica_260920:tile_x2_z2 128 56 128
+/structure load emerald_basilica_260920:tile_x2_z3 128 56 192
+/structure load emerald_basilica_260920:tile_x3_z0 192 56 0
+/structure load emerald_basilica_260920:tile_x3_z1 192 56 64
+/structure load emerald_basilica_260920:tile_x3_z2 192 56 128
+/structure load emerald_basilica_260920:tile_x3_z3 192 56 192
+
+五、探索位置（使用上述範例原點）
+北面入口橋：/tp @s 128 69 6
+主廳內：/tp @s 128 75 105
+主廳兩段樓梯：本地X149..160、Z106..134，連接地板Y18→Y40→Y62。
+二層迴廊：/tp @s 128 97 94
+三層迴廊：/tp @s 128 119 94
+夜間看輪廓照明可執行 /time set night 。本包不會自行改變時間、天氣或遊戲規則。
+
+六、覆蓋與復刻範圍
+16件中的air會清空完整256×160×256包圍盒內原有方塊，水池與基底也會覆蓋地形。
+請放在空白區域或測試世界；不需要也不應覆蓋db。本包不是世界存檔。
+原點Y須讓整個160格高度位於所在維度建築高度內，建議主世界依上例放置。
+本作品是依參考圖重建辨識特徵，不是原作者結構檔或逐格相同的複製。
+256格內重新安排副殿與橋路；曲面以階梯、半磚、方塊近似；背面及未顯示內裝依同風格補完。
+不包含原截圖的材質包、Shader、水面倒影或額外自訂方塊。
+附圖依實際最終方塊與states繪製，非遊戲截圖；水與玻璃採實色，材質及細小形狀簡化。
+
+七、驗證結果
+格式驗證通過，尚未在遊戲內實測。
+已重新解析全部16件未壓縮little-endian NBT，驗證尺寸、索引範圍/數量、官方方塊ID/state及型別、
+原點、palette一致性；分件重新組合與完整模型逐格相等；ZIP CRC、manifest、UUID、路徑一致。
+動線採兩格淨高與落腳支承的保守方塊圖檢查，14個檢查點均可從入口橋到達，包含八副殿與兩層迴廊；
+此為資料檢查，不等同Minecraft實際玩家碰撞測試。
+
+來源：
+https://github.com/Mojang/bedrock-samples/tree/v1.26.50.4
+https://learn.microsoft.com/en-us/minecraft/creator/documents/structures/introductiontostructureblocks
+https://learn.microsoft.com/en-us/minecraft/creator/documents/simulationrenderdistanceguide
