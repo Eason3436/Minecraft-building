@@ -4,7 +4,7 @@
 
 ## 規範
 
-- 建築生成請使用 `anthropic-skills:minecraft-bedrock-structure` skill。
+- 建築生成請使用本專案的 `minecraft-bedrock-structure` skill（位於 `.claude/skills/minecraft-bedrock-structure/`，原始碼同步在 `skills/`）。先寫 `work/<專案>/build_plan.md` 任務書再開工。
 - 每個建築放在 `structures/<建築名稱>/`，內含 `.mcpack` 與繁體中文使用說明 `.txt`。
 - 使用繁體中文與使用者溝通。
 - 不要提交暫存或 db 檔案。

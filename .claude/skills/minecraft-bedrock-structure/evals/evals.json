@@ -1,0 +1,49 @@
+{
+  "skill_name": "minecraft-bedrock-structure",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "幫我做61寬61深35高的基岩版寺廟，名字qqqq，最後給mcpack、中文說明、整體渲染和剖視圖。",
+      "expected_output": "四個檔案；重簷、主殿、庭院；正確X/Y/Z及namespace。；正式交付整體PNG與內部剖視PNG，與最終模型一致。",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "我有只有db的ZIP，裡面qqqq原本5格，改成大寺廟，不要我覆蓋世界。",
+      "expected_output": "只讀工作副本；最後mcpack與說明；不交付db。；正式交付整體PNG與內部剖視PNG，與最終模型一致。",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "做一個基岩版23寬19深15高的石造圖書館，可以走進去，要mcpack、操作說明和兩張渲染圖。",
+      "expected_output": "另行規劃圖書館；NBT [23,15,19]；不硬套寺廟；四個交付檔案。；正式交付整體PNG與內部剖視PNG，與最終模型一致。",
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "讓AI自由設計一座科幻基地，中文名叫星港研究站，載入ID用starport:research_station，最後給mcpack、说明和兩張渲染圖，不提供來源檔。",
+      "expected_output": "從零生成科幻基地；manifest顯示星港研究站；structures/starport/research_station.mcstructure；說明載入ID一致；不沿用寺廟或qqqq。；正式交付整體PNG與內部剖視PNG，與最終模型一致。",
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "這張圖是京都的日式町屋（附檔 machiya.jpg），幫我復刻成基岩版，大概 25 寬 20 深 15 高，最後給 mcpack、說明和渲染圖。",
+      "expected_output": "先寫 build_plan.md，第 8 節有觀察清單、比例錨點與材質對應表；牆面用 3 種以上白色系漸層、屋頂為樓梯+半磚有簷、二樓格柵窗節奏與圖一致；stats distinct_blocks ≥ 15；渲染圖與參考圖並排比對後修正一輪；四個交付檔案。",
+      "files": [
+        "machiya.jpg"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "做一套中世紀村莊合集：三種不同的民宅、一座水井、一段可接續的石圍牆，要能自由拼接，一個行為包搞定。",
+      "expected_output": "任務書拆解決策為『拆成模組』，接口表寫出地面高度與圍牆接縫；同一 namespace 五個 id；共用調色盤與燈柱/窗元件函式；說明含每個 id 的尺寸與拼接偏移範例；只交一個 mcpack。",
+      "files": []
+    },
+    {
+      "id": 7,
+      "prompt": "我之前那棟石造圖書館太單調了，牆面全是 stone_bricks，屋頂也是平的，幫我加細節讓它精緻一點，不要改尺寸。",
+      "expected_output": "讀 detailing-techniques.md；牆面改為灰石漸層＋柱與腰線、加坡屋頂或女兒牆與簷口、窗加框、室內補家具與光源；stats 的 distinct_blocks 與 max_share 明顯改善並在回覆列出前後對照；尺寸不變；重新渲染四個交付檔案。",
+      "files": []
+    }
+  ]
+}
