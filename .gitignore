@@ -20,3 +20,4 @@ work/
 
 # Tool state
 .omo/
+__pycache__/
