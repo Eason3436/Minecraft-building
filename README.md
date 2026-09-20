@@ -6,6 +6,7 @@
 
 - `structures/` — 生成的建築檔（`.mcpack`）、渲染圖與繁體中文使用說明，一個建築一個資料夾
 - `docs/` — 建築需求、風格與尺寸的筆記
+- `skills/minecraft-bedrock-structure/` — 建築生成 skill 的原始碼（任務書拆解、方塊目錄、風格調色盤、細節技法、圖片復刻流程）；`skills/minecraft-bedrock-structure.skill` 是打包好的安裝檔
 
 ## 建築清單
 

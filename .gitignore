@@ -17,3 +17,6 @@ temp/
 *.log
 *.zip
 work/
+
+# Tool state
+.omo/
