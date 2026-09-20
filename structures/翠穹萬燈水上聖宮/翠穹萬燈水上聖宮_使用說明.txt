@@ -21,7 +21,27 @@
 3. 開啟作弊，使用創造模式。依Mojang官方v1.26.50.4方塊資料表製作，
    宣告最低引擎1.26.50（遊戲顯示26.50）；不保證更舊版本可用。
 
-三、推薦整組放置（兩步載入＋清理）
+三、一條指令慢速放置（新版1.1.0，推薦）
+重新匯入新版並在世界啟用1.1.0版本後，只需執行：
+/function emerald_basilica/start
+
+這條指令固定在【主世界原點(0,56,0)】放置，與你站的位置無關。
+佔用 X0..255、Z0..255、Y56..215；會覆蓋這個範圍內的方塊。請先確認區域空白。
+即使用 /execute positioned 包住start，也不會改變放置地點，因為延遲函式使用固定座標。
+自動預載四區，等全部區塊載入完成，再等待10秒開始。
+16個分件依序用 layer_by_layer 逐層放置，每件60秒，件與件之間保留10秒。
+正常20TPS下，預載完成後18分50秒完成並自動清理預載區；卡頓時實際時間可能更長。
+期間保持世界開啟；聊天訊息顯示分件進度。一次只允許一個作業，重複start不會疊加。
+不要同時執行舊版build、row函式或手動structure load，以免與慢速流程重疊。
+需4個可用tickingarea名額；若一直停在等待預載，查看指令錯誤和 /tickingarea list。
+降低同時放置量是為了讓光照有時間更新，不能保證修復所有光影/材質包或引擎光照問題。
+指令與時序已靜態驗證，尚未在遊戲內實測。
+
+中止後續分件：/function emerald_basilica/stop
+已開始的逐層動畫仍會完成；70秒後清理預載區。已放置部分保留，不會回復原地形。
+停止完成後可以start從第1件重建。請勿在流程進行時手動cleanup。
+
+四、原有立即載入方式（需其他原點才使用；不是慢速模式）
 先選好256×256格的空地或水域；本包自帶封底水池。
 以下以原點 (0,56,0) 為例：水面Y62、橋面Y68、主廳地板Y74、頂冠Y207。
 原點不是你站的位置或建築中央，建築佔 X0..255、Z0..255、Y56..215。
@@ -45,7 +65,7 @@ build不會自動清除預載區，以便遇到某分件失敗時重試；完成
 /execute positioned 0 56 0 run function emerald_basilica/row_2
 /execute positioned 0 56 0 run function emerald_basilica/row_3
 
-四、手動分件或結構方塊
+五、手動分件或結構方塊
 /give @s structure_block
 放下後切換「載入」，輸入完整ID，例如 emerald_basilica_260920:tile_x0_z0。
 每件64×160×64，tile_xI_zJ偏移為(I×64,0,J×64)，I、J=0..3。
@@ -68,7 +88,7 @@ build不會自動清除預載區，以便遇到某分件失敗時重試；完成
 /structure load emerald_basilica_260920:tile_x3_z2 192 56 128
 /structure load emerald_basilica_260920:tile_x3_z3 192 56 192
 
-五、探索位置（使用上述範例原點）
+六、探索位置（使用上述範例原點）
 北面入口橋：/tp @s 128 69 6
 主廳內：/tp @s 128 75 105
 主廳兩段樓梯：本地X149..160、Z106..134，連接地板Y18→Y40→Y62。
@@ -76,7 +96,7 @@ build不會自動清除預載區，以便遇到某分件失敗時重試；完成
 三層迴廊：/tp @s 128 119 94
 夜間看輪廓照明可執行 /time set night 。本包不會自行改變時間、天氣或遊戲規則。
 
-六、覆蓋與復刻範圍
+七、覆蓋與復刻範圍
 16件中的air會清空完整256×160×256包圍盒內原有方塊，水池與基底也會覆蓋地形。
 請放在空白區域或測試世界；不需要也不應覆蓋db。本包不是世界存檔。
 原點Y須讓整個160格高度位於所在維度建築高度內，建議主世界依上例放置。
@@ -85,7 +105,7 @@ build不會自動清除預載區，以便遇到某分件失敗時重試；完成
 不包含原截圖的材質包、Shader、水面倒影或額外自訂方塊。
 附圖依實際最終方塊與states繪製，非遊戲截圖；水與玻璃採實色，材質及細小形狀簡化。
 
-七、驗證結果
+八、驗證結果
 格式驗證通過，尚未在遊戲內實測。
 已重新解析全部16件未壓縮little-endian NBT，驗證尺寸、索引範圍/數量、官方方塊ID/state及型別、
 原點、palette一致性；分件重新組合與完整模型逐格相等；ZIP CRC、manifest、UUID、路徑一致。
@@ -96,3 +116,5 @@ build不會自動清除預載區，以便遇到某分件失敗時重試；完成
 https://github.com/Mojang/bedrock-samples/tree/v1.26.50.4
 https://learn.microsoft.com/en-us/minecraft/creator/documents/structures/introductiontostructureblocks
 https://learn.microsoft.com/en-us/minecraft/creator/documents/simulationrenderdistanceguide
+https://learn.microsoft.com/en-us/minecraft/creator/commands/commands/schedule
+https://learn.microsoft.com/en-us/minecraft/creator/commands/commands/structure
