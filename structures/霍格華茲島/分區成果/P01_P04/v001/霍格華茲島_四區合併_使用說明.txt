@@ -1,0 +1,33 @@
+霍格華茲島 P01–P04 四區精修合併
+基岩版26.50格式，Mojang v1.26.50.4方塊表；格式驗證，尚未遊戲實測。
+寬266×深218×高155；NBT X/Y/Z=266/155/218。局部原點(452,88,444)，東+X、南+Z。
+主步行面Y128，塔尖Y242；圖中岩基外緣是施工切面，不是最終全島海岸。
+保留P01/P02 v003全部已寫入方塊；新增P03/P04、兩區連廊與所需局部岩基。
+
+匯入：雙擊mcpack，在世界中啟用行為包，創造模式並開作弊。各分件X/Z<=64。
+本包採新ID，勿与舊包在不同偏移重疊放置。若舊兩區最小角原點為(A,B,C)，新四區最小角須為(A-72,B-8,C-74)。例如舊包100 64 100，新包28 56 26。
+
+下列以新四區最小角100 48 100為例；步行面為Y88，最高Y202。請在各分件附近、確認區塊載入後依序執行：
+/structure load hogwarts_four_260921:part_0_0 100 48 100
+/structure load hogwarts_four_260921:part_0_1 100 48 164
+/structure load hogwarts_four_260921:part_1_0 164 48 100
+/structure load hogwarts_four_260921:part_1_1 164 48 164
+/structure load hogwarts_four_260921:part_1_2 164 48 228
+/structure load hogwarts_four_260921:part_1_3 164 48 292
+/structure load hogwarts_four_260921:part_2_0 228 48 100
+/structure load hogwarts_four_260921:part_2_1 228 48 164
+/structure load hogwarts_four_260921:part_2_2 228 48 228
+/structure load hogwarts_four_260921:part_2_3 228 48 292
+/structure load hogwarts_four_260921:part_3_0 292 48 100
+/structure load hogwarts_four_260921:part_3_1 292 48 164
+/structure load hogwarts_four_260921:part_3_2 292 48 228
+/structure load hogwarts_four_260921:part_3_3 292 48 292
+/structure load hogwarts_four_260921:part_4_1 356 48 164
+/structure load hogwarts_four_260921:part_4_2 356 48 228
+/structure load hogwarts_four_260921:part_4_3 356 48 292
+
+/give @s structure_block；切換載入，ID如上，旋轉0、無鏡像、完整性100%。自訂原點O時每件位置=O+offset。
+空氣air僅清除已施工室內/庭院/地下預留；其餘-1保留。請在空曠地點放置。
+大階梯為固定可走樓梯，不是移動機關；肖像、床舖與校長室裝飾為方塊造景，病床不是可睡眠床物品。
+P21地下只預留密室與地牢空間，未裝潢。北側P05及P06僅接口，其他區未建。
+來源及接口：各分區v001/work與四區work/features.json。

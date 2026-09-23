@@ -1,0 +1,78 @@
+{
+  "walk_targets": {
+    "P08_floor_140": {
+      "point": [
+        544,
+        140,
+        366
+      ],
+      "reachable": true,
+      "standable": true
+    },
+    "P08_floor_152": {
+      "point": [
+        544,
+        152,
+        366
+      ],
+      "reachable": true,
+      "standable": true
+    },
+    "P08_floor_164": {
+      "point": [
+        544,
+        164,
+        366
+      ],
+      "reachable": true,
+      "standable": true
+    },
+    "P08_floor_176": {
+      "point": [
+        544,
+        176,
+        366
+      ],
+      "reachable": true,
+      "standable": true
+    },
+    "P08_floor_188": {
+      "point": [
+        544,
+        188,
+        366
+      ],
+      "reachable": true,
+      "standable": true
+    },
+    "P08_floor_200": {
+      "point": [
+        544,
+        200,
+        366
+      ],
+      "reachable": true,
+      "standable": true
+    },
+    "P08_entry": {
+      "point": [
+        544,
+        140,
+        383
+      ],
+      "reachable": true,
+      "standable": true
+    },
+    "P08_link": {
+      "point": [
+        544,
+        140,
+        405
+      ],
+      "reachable": true,
+      "standable": true
+    }
+  },
+  "merged_validation": "../../P01_P08/v001/work/validation.json",
+  "game_tested": false
+}

@@ -1,0 +1,79 @@
+{
+  "merged_report": "../../P01_P04/v001/work/validation.json",
+  "standalone_voxel_format": "coords global XYZ and indices into work/palette.json; records are additions/changes from shared batch baseline",
+  "walk_targets": {
+    "P03_gallery_140": {
+      "point": [
+        642,
+        140,
+        512
+      ],
+      "reachable": true,
+      "standable": true
+    },
+    "P03_gallery_152": {
+      "point": [
+        642,
+        152,
+        512
+      ],
+      "reachable": true,
+      "standable": true
+    },
+    "P03_gallery_164": {
+      "point": [
+        642,
+        164,
+        512
+      ],
+      "reachable": true,
+      "standable": true
+    },
+    "P03_gallery_176": {
+      "point": [
+        642,
+        176,
+        512
+      ],
+      "reachable": true,
+      "standable": true
+    },
+    "P03_gallery_188": {
+      "point": [
+        642,
+        188,
+        512
+      ],
+      "reachable": true,
+      "standable": true
+    },
+    "P03_gallery_200": {
+      "point": [
+        642,
+        200,
+        512
+      ],
+      "reachable": true,
+      "standable": true
+    },
+    "P03_entrance": {
+      "point": [
+        625,
+        128,
+        540
+      ],
+      "reachable": true,
+      "standable": true
+    },
+    "P03_office": {
+      "point": [
+        631,
+        200,
+        510
+      ],
+      "reachable": true,
+      "standable": true
+    }
+  },
+  "game_tested": false
+}

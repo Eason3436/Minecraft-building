@@ -1,0 +1,96 @@
+{
+  "walk_targets": {
+    "P06_clock_132": {
+      "point": [
+        440,
+        132,
+        416
+      ],
+      "reachable": true,
+      "standable": true
+    },
+    "P06_clock_144": {
+      "point": [
+        440,
+        144,
+        416
+      ],
+      "reachable": true,
+      "standable": true
+    },
+    "P06_clock_156": {
+      "point": [
+        440,
+        156,
+        416
+      ],
+      "reachable": true,
+      "standable": true
+    },
+    "P06_clock_168": {
+      "point": [
+        440,
+        168,
+        416
+      ],
+      "reachable": true,
+      "standable": true
+    },
+    "P06_clock_180": {
+      "point": [
+        440,
+        180,
+        416
+      ],
+      "reachable": true,
+      "standable": true
+    },
+    "P06_clock_192": {
+      "point": [
+        440,
+        192,
+        416
+      ],
+      "reachable": true,
+      "standable": true
+    },
+    "P06_court": {
+      "point": [
+        448,
+        128,
+        484
+      ],
+      "reachable": true,
+      "standable": true
+    },
+    "P06_P04_connection": {
+      "point": [
+        461,
+        128,
+        475
+      ],
+      "reachable": true,
+      "standable": true
+    },
+    "P06_bridge_interface": {
+      "point": [
+        417,
+        128,
+        475
+      ],
+      "reachable": true,
+      "standable": true
+    },
+    "P06_hospital_link": {
+      "point": [
+        470,
+        152,
+        450
+      ],
+      "reachable": true,
+      "standable": true
+    }
+  },
+  "merged_validation": "../../P01_P08/v001/work/validation.json",
+  "game_tested": false
+}

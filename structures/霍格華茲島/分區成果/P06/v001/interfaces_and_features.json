@@ -1,0 +1,26 @@
+{
+  "name": "鐘樓與鐘樓庭院",
+  "floors": [
+    132,
+    144,
+    156,
+    168,
+    180,
+    192
+  ],
+  "clock_faces": 4,
+  "clock_and_pendulum": "static block scenery",
+  "court_floor": 128,
+  "tower_floor": 132,
+  "hospital_link_floor": 152,
+  "details": [
+    "stone clock dials",
+    "corner spires",
+    "gallery rails",
+    "pendulum well",
+    "fountain",
+    "planted arcade",
+    "benches"
+  ],
+  "future_P20": "west opening only, bridge not built"
+}

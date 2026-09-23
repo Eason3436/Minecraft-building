@@ -1,0 +1,36 @@
+{
+  "gallery_levels": [
+    128,
+    140,
+    152,
+    164,
+    176,
+    188,
+    200
+  ],
+  "stair_flights": 6,
+  "stair_rises": 72,
+  "portrait_mosaics": 42,
+  "satellite_spires": 4,
+  "roof_tip": 242,
+  "headmaster_office": true,
+  "portals": {
+    "P01": [
+      619,
+      128,
+      540,
+      631,
+      138,
+      556
+    ],
+    "P04": [
+      580,
+      128,
+      508,
+      594,
+      136,
+      516
+    ]
+  },
+  "portraits": "static block mosaics, not animated entities"
+}

@@ -1,0 +1,18 @@
+{
+  "name": "雷文克勞塔",
+  "floors": [
+    140,
+    152,
+    164,
+    176,
+    188,
+    200
+  ],
+  "tip": 252,
+  "stairs": "five clockwise flights, 60 rises",
+  "dormitory_alcoves": 6,
+  "glass": "light gray / smoke gray",
+  "interior_color": "blue",
+  "beds": "decorative block models, not sleepable beds",
+  "entry": "southern covered P05 connector at Y140"
+}

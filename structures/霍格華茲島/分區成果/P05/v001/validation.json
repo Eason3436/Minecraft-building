@@ -1,0 +1,114 @@
+{
+  "walk_targets": {
+    "P05_entry": {
+      "point": [
+        550,
+        140,
+        466
+      ],
+      "reachable": true,
+      "standable": true
+    },
+    "P05_reading": {
+      "point": [
+        551,
+        140,
+        430
+      ],
+      "reachable": true,
+      "standable": true
+    },
+    "P05_restricted": {
+      "point": [
+        540,
+        140,
+        430
+      ],
+      "reachable": true,
+      "standable": true
+    },
+    "P05_mezzanine": {
+      "point": [
+        586,
+        152,
+        443
+      ],
+      "reachable": true,
+      "standable": true
+    },
+    "P05_upper_stacks": {
+      "point": [
+        535,
+        152,
+        446
+      ],
+      "reachable": true,
+      "standable": true
+    },
+    "P05_upper_reading": {
+      "point": [
+        565,
+        152,
+        417
+      ],
+      "reachable": true,
+      "standable": true
+    },
+    "P05_west_link": {
+      "point": [
+        519,
+        140,
+        452
+      ],
+      "reachable": true,
+      "standable": true
+    },
+    "P05_north_cloister": {
+      "point": [
+        650,
+        140,
+        444
+      ],
+      "reachable": true,
+      "standable": true
+    },
+    "P05_tower_link": {
+      "point": [
+        622,
+        140,
+        475
+      ],
+      "reachable": true,
+      "standable": true
+    },
+    "P05_P07_future": {
+      "point": [
+        624,
+        140,
+        438
+      ],
+      "reachable": true,
+      "standable": true
+    },
+    "P05_P08_future": {
+      "point": [
+        542,
+        140,
+        409
+      ],
+      "reachable": true,
+      "standable": true
+    },
+    "P05_P09_future": {
+      "point": [
+        657,
+        140,
+        444
+      ],
+      "reachable": true,
+      "standable": true
+    }
+  },
+  "merged_validation": "../../P01_P05/v001/work/validation.json",
+  "game_tested": false
+}

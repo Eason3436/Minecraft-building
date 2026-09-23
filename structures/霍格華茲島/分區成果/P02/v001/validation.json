@@ -1,0 +1,83 @@
+{
+  "status": "geometry and block identifiers passed; not tested in game",
+  "total_records": 174172,
+  "solid_blocks": 35986,
+  "bounds_min": [
+    650,
+    128,
+    530
+  ],
+  "bounds_max": [
+    705,
+    176,
+    625
+  ],
+  "palette": [
+    "minecraft:air",
+    "minecraft:black_concrete",
+    "minecraft:blue_stained_glass",
+    "minecraft:blue_wool",
+    "minecraft:chiseled_stone_bricks",
+    "minecraft:cut_sandstone",
+    "minecraft:dark_oak_planks",
+    "minecraft:deepslate_tiles",
+    "minecraft:glowstone",
+    "minecraft:gold_block",
+    "minecraft:green_wool",
+    "minecraft:polished_deepslate",
+    "minecraft:red_wool",
+    "minecraft:smooth_sandstone",
+    "minecraft:spruce_planks",
+    "minecraft:stone_bricks",
+    "minecraft:white_concrete",
+    "minecraft:yellow_wool"
+  ],
+  "west_interface_open": true,
+  "underground_untouched": true,
+  "roof_max_y": 176,
+  "table_rows": 4,
+  "numpy_format": "coords Nx3 int16 global X,Y,Z; names N Unicode U48; air explicit; all blocks use default states",
+  "ground_level_connectivity": {
+    "start": [
+      650,
+      575
+    ],
+    "targets": [
+      [
+        657,
+        555
+      ],
+      [
+        666,
+        560
+      ],
+      [
+        676,
+        560
+      ],
+      [
+        686,
+        560
+      ],
+      [
+        697,
+        560
+      ],
+      [
+        705,
+        574
+      ],
+      [
+        699,
+        615
+      ],
+      [
+        678,
+        548
+      ]
+    ],
+    "passed": true,
+    "clearance": 2,
+    "note": "2-block-high cardinal walkability at base Y128; every table aisle, east door and service landing reachable"
+  }
+}

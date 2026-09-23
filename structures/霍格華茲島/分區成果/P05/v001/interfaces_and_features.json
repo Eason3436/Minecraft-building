@@ -1,0 +1,68 @@
+{
+  "reading_floor_y": 140,
+  "mezzanine_floor_y": 152,
+  "main_reading_tables": 6,
+  "restricted_section": [
+    531,
+    140,
+    415,
+    549,
+    149,
+    441
+  ],
+  "stair_rises": 12,
+  "dormers": 6,
+  "pinnacles": 4,
+  "glass": "light gray, smoke gray, clear; no repeating house colors",
+  "ports": {
+    "P04_court": [
+      546,
+      140,
+      464,
+      555,
+      149,
+      480
+    ],
+    "P04_west": [
+      502,
+      140,
+      448,
+      526,
+      148,
+      460
+    ],
+    "P03_door": [
+      619,
+      140,
+      483,
+      625,
+      148,
+      490
+    ],
+    "P07_future": [
+      620,
+      140,
+      438,
+      628,
+      149,
+      441
+    ],
+    "P08_future": [
+      538,
+      140,
+      408,
+      546,
+      148,
+      412
+    ],
+    "P09_future": [
+      654,
+      140,
+      440,
+      658,
+      149,
+      448
+    ]
+  },
+  "restricted_gate": "static open arch with iron-bar enclosure; not a lock mechanism"
+}

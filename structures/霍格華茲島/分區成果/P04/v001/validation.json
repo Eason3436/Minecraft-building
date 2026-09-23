@@ -1,0 +1,133 @@
+{
+  "merged_report": "../../P01_P04/v001/work/validation.json",
+  "standalone_voxel_format": "coords global XYZ and indices into work/palette.json; records are additions/changes from shared batch baseline",
+  "walk_targets": {
+    "P04_room_128_462": {
+      "point": [
+        497,
+        128,
+        475
+      ],
+      "reachable": true,
+      "standable": true
+    },
+    "P04_room_128_493": {
+      "point": [
+        497,
+        128,
+        506
+      ],
+      "reachable": true,
+      "standable": true
+    },
+    "P04_room_128_524": {
+      "point": [
+        497,
+        128,
+        537
+      ],
+      "reachable": true,
+      "standable": true
+    },
+    "P04_room_140_462": {
+      "point": [
+        497,
+        140,
+        475
+      ],
+      "reachable": true,
+      "standable": true
+    },
+    "P04_room_140_493": {
+      "point": [
+        497,
+        140,
+        506
+      ],
+      "reachable": true,
+      "standable": true
+    },
+    "P04_room_140_524": {
+      "point": [
+        497,
+        140,
+        537
+      ],
+      "reachable": true,
+      "standable": true
+    },
+    "P04_room_152_462": {
+      "point": [
+        497,
+        152,
+        475
+      ],
+      "reachable": true,
+      "standable": true
+    },
+    "P04_room_152_493": {
+      "point": [
+        497,
+        152,
+        506
+      ],
+      "reachable": true,
+      "standable": true
+    },
+    "P04_room_152_524": {
+      "point": [
+        497,
+        152,
+        537
+      ],
+      "reachable": true,
+      "standable": true
+    },
+    "P04_wing_entry": {
+      "point": [
+        510,
+        128,
+        510
+      ],
+      "reachable": true,
+      "standable": true
+    },
+    "P04_court": {
+      "point": [
+        553,
+        128,
+        512
+      ],
+      "reachable": true,
+      "standable": true
+    },
+    "P04_library_gallery": {
+      "point": [
+        552,
+        140,
+        482
+      ],
+      "reachable": true,
+      "standable": true
+    },
+    "P04_wing_library_port": {
+      "point": [
+        507,
+        140,
+        457
+      ],
+      "reachable": true,
+      "standable": true
+    },
+    "P04_basement_reserved": {
+      "point": [
+        508,
+        112,
+        480
+      ],
+      "reachable": true,
+      "standable": true
+    }
+  },
+  "game_tested": false
+}

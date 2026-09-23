@@ -1,0 +1,27 @@
+霍格華茲島 P01 主入口與前庭 ＋ P02 大餐廳
+尺寸：寬194 × 深144 × 高81；NBT X/Y/Z=194/81/144。
+局部原點 X524/Y96/Z518；東+X、南+Z；步行面Y128。僅本批兩區，不是完整島。
+基岩版26.50格式／Mojang v1.26.50.4方塊表；尚未遊戲內實測。
+雙擊mcpack匯入，世界啟用行為包，創造模式開作弊。
+技術分件每件X/Z不超過64；依Microsoft官方結構方塊說明：
+https://learn.microsoft.com/en-us/minecraft/creator/documents/structures/introductiontostructureblocks
+
+下列範例把本批最小角放在100 64 100，步行面因此為Y96。請在各分件附近執行，確保區塊已載入；依序載入、旋轉0、無鏡像、完整性100%。
+/structure load hogwarts_260920:p01_p02_0_1 100 64 164
+/structure load hogwarts_260920:p01_p02_0_2 100 64 228
+/structure load hogwarts_260920:p01_p02_1_0 164 64 100
+/structure load hogwarts_260920:p01_p02_1_1 164 64 164
+/structure load hogwarts_260920:p01_p02_1_2 164 64 228
+/structure load hogwarts_260920:p01_p02_2_0 228 64 100
+/structure load hogwarts_260920:p01_p02_2_1 228 64 164
+/structure load hogwarts_260920:p01_p02_3_0 292 64 100
+/structure load hogwarts_260920:p01_p02_3_1 292 64 164
+
+結構方塊：/give @s structure_block，切換載入，名稱與上列一致。
+自訂原點O：每件載入位置=O+offset；全部偏移見work/validation.json。未施工區以-1保留，室內與預留地下空間的明確air會清除原有方塊，請選空地。
+P03北連廊、P16船屋階梯、P11東門樓均僅留接口；P21/P22地下只預留空間，未裝潢。
+主岩體只完成本批占地與12格接坡，非T33整區完成；terrain_heightfield.npy作後續接縫依據。
+星空與沙漏為靜態造景；不含魔法機關。渲染取最終方塊，簡化材質。
+
+增量精修版v003／行為包1.2.0。包含v002全部細節，新增8座老虎窗、4座小尖頂、四院彩繪玫瑰窗、側窗色帶、滴水獸與落水管、攀藤造景、屋瓦修補、入口肋拱吊燈、四院地坪徽紋及精細餐具。
+沿用舊版UUID、結構ID、9件偏移。雙擊重新匯入，啟用新包，依相同座標重新載入才能更新已放置方塊。v001/v002保留；僅啟用最新行為包。

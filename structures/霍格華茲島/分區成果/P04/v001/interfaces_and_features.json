@@ -1,0 +1,31 @@
+{
+  "storeys": [
+    128,
+    140,
+    152
+  ],
+  "furnished_rooms": 9,
+  "hospital_beds": 6,
+  "roof_dormers": 6,
+  "pinnacles": 4,
+  "courtyard": "four-sided cloister, well, benches, topiary",
+  "stairs": "two storey flights; courtyard to Y140; basement reserved landing Y112",
+  "future_P05_ports": [
+    [
+      502,
+      140,
+      456,
+      512,
+      148,
+      460
+    ],
+    [
+      546,
+      140,
+      480,
+      555,
+      148,
+      486
+    ]
+  ]
+}

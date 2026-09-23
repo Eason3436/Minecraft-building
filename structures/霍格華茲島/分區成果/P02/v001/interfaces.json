@@ -1,0 +1,71 @@
+{
+  "coordinate_system": "island global; all ranges half-open",
+  "west_P01": {
+    "x": [
+      650,
+      659
+    ],
+    "y": [
+      128,
+      138
+    ],
+    "z": [
+      570,
+      580
+    ],
+    "facing": "west",
+    "clear_width": 10,
+    "clear_height": 10,
+    "floor_y": 127
+  },
+  "east_P11_future": {
+    "x": [
+      699,
+      706
+    ],
+    "y": [
+      128,
+      138
+    ],
+    "z": [
+      569,
+      579
+    ],
+    "facing": "east",
+    "clear_width": 10,
+    "clear_height": 10,
+    "floor_y": 127,
+    "note": "P11 corridor beyond X706 not built"
+  },
+  "P22_service_stair_reserved": {
+    "x": [
+      695,
+      701
+    ],
+    "y": [
+      112,
+      128
+    ],
+    "z": [
+      612,
+      621
+    ],
+    "facing": "down",
+    "note": "P02 only builds landing; parent base must leave future stair footprint removable. P22 builds staircase and opens floor later"
+  },
+  "floor_owner": "merged foundation builder supplies Y127; no P02 writes below Y128",
+  "bounds": {
+    "x": [
+      650,
+      706
+    ],
+    "y": [
+      128,
+      177
+    ],
+    "z": [
+      530,
+      626
+    ]
+  }
+}
