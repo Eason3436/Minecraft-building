@@ -21,7 +21,7 @@
 13. `block_version` 是遊戲版本編碼：`(major<<24)|(minor<<16)|(patch<<8)`，例如 26.50 為 `(1<<24)|(26<<16)|(50<<8)`；本專案既有生成器都用此算法，與 mojang-blocks.json 的版本要一致。
 14. 26.x 起樓梯多了 `minecraft:corner` state（`none`/`inner_left`/…）。`StructureBuilder.block()` 預設取第一個值 `none`，遊戲載入後會依鄰接重算，不需要手動填。
 15. `chain` 已改名 `iron_chain`，另有 `copper_chain` 系列；橡木活板門/門/按鈕/壓力板是無前綴的 `trapdoor`/`wooden_door`/`wooden_button`/`wooden_pressure_plate`。完整命名例外表在 `block-catalog.md` 第 1 節。
-16. 牆、玻璃板、鐵欄、銅欄的連接是 state（`wall_connection_type_*`、`minecraft:connection_*`），結構載入時不一定重算；`save()` 前呼叫 `StructureBuilder.auto_connect()` 依鄰接補上，否則整排玻璃板會是孤立十字。柵欄沒有 state，不受影響。
+16. 牆、玻璃板、鐵欄、銅欄的連接是 state（`wall_connection_type_*`、`minecraft:connection_*`），結構載入時不一定重算；`save()` 前呼叫 `StructureBuilder.auto_connect()` 依鄰接補上，否則整排玻璃板會是孤立十字。1.26 起柵欄也有 `minecraft:connection_*` state，`auto_connect()` 已一併處理（柵欄只連柵欄／柵欄門與實心方塊）。
 17. 全域 Python 可能沒有 numpy/amulet_nbt；本專案 `work/active_mob_tower/vendor/` 有 Python 3.10 的預編譯套件，用 `PYTHONPATH=<vendor> py -3.10` 或在生成器裡 `sys.path.insert` 即可，不要對其他版本盲目編譯。
 
 ## 範例適用範圍

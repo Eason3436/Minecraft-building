@@ -102,6 +102,8 @@ class StructureBuilder:
             return solid[k]
         def is_linkable(k):
             n=str(self.palette[k]['name']) if k>0 else '';return any(s in n for s in ('_pane','_bars','_wall'))
+        def is_fence(k):
+            n=str(self.palette[k]['name']) if k>0 else '';return n.endswith('_fence') or n.endswith('_fence_gate')
         changed=0
         for x in range(X):
             for y in range(Y):
@@ -111,11 +113,12 @@ class StructureBuilder:
                     name=str(self.palette[k]['name']);st=self.palette[k]['states']
                     keys=[s for s in st if s.startswith('minecraft:connection_') or s.startswith('wall_connection_type_')]
                     if not keys:continue
-                    new={}
+                    new={};fence=name.endswith('_fence')
                     for d,(dx,dz) in {'east':(1,0),'west':(-1,0),'south':(0,1),'north':(0,-1)}.items():
                         nx,nz=x+dx,z+dz
                         nk=int(self.blocks[nx,y,nz]) if 0<=nx<X and 0<=nz<Z else 0
-                        link=is_solid(nk) or is_linkable(nk)
+                        # fences (26.x+ carry connection_* states) link to fences/gates and solids only
+                        link=is_solid(nk) or (is_fence(nk) if fence else is_linkable(nk))
                         if 'minecraft:connection_'+d in st:new['minecraft:connection_'+d]=link
                         elif 'wall_connection_type_'+d in st:
                             above=int(self.blocks[x,y+1,z]) if y+1<Y else 0
