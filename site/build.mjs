@@ -212,11 +212,13 @@ const CATS = [
   ['鐵道', /鐵道|鐵路|雙軌|車站|月台|隧道|高架/],
   ['橋梁', /大橋|橋梁|拱橋/],
 ];
-function categorize(name, texts) {
+function categorize(name, labels, descs) {
   let primary = '建築';
   for (const [c, re] of CATS) if (re.test(name)) { primary = c; break; }
   const tags = [primary];
-  for (const [c, re] of CATS) if (!tags.includes(c) && (re.test(name) || texts.some((t) => re.test(t)))) tags.push(c);
+  // 次要分類只看建築名稱與版本名稱；簡介只用來判斷「純紅石／紅石機關」（避免「不含任何紅石」被誤判）
+  for (const [c, re] of CATS) if (!tags.includes(c) && labels.some((t) => re.test(t))) tags.push(c);
+  if (!tags.includes('紅石') && descs.some((t) => /純紅石|紅石(機關|邏輯|電路|裁判|計分)|裁判塔/.test(t))) tags.push('紅石');
   if (!tags.includes('建築') && /樓|閣|塔|府邸|教堂|宮|城|島|劇院|鬥獸場|競技場|町|街|港/.test(name)) tags.push('建築');
   return tags;
 }
@@ -470,10 +472,9 @@ for (const b of bList) {
   let def = 0;
   versions.forEach((v, i) => { if (v.blocks > versions[def].blocks || (v.blocks === versions[def].blocks && (v.date || '') > (versions[def].date || ''))) def = i; });
   const dv = versions[def];
-  const texts = versions.flatMap((v) => [v.description, v.packName, v.label]);
   catalog.buildings.push({
     slug: b.slug, name: b.name,
-    tags: categorize(b.name, texts),
+    tags: categorize(b.name, versions.flatMap((v) => [v.packName, v.label]), versions.map((v) => v.description)),
     date: versions.map((v) => v.date).filter(Boolean).sort().pop() || null,
     defaultVersion: dv.id,
     versions,

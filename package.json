@@ -12,7 +12,7 @@
     "node": ">=20.9"
   },
   "dependencies": {
-    "fflate": "0.8.2",
+    "fflate": "0.8.3",
     "three": "0.187.0"
   },
   "optionalDependencies": {
