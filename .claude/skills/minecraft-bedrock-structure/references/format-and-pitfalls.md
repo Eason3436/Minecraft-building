@@ -24,6 +24,14 @@
 16. 牆、玻璃板、鐵欄、銅欄的連接是 state（`wall_connection_type_*`、`minecraft:connection_*`），結構載入時不一定重算；`save()` 前呼叫 `StructureBuilder.auto_connect()` 依鄰接補上，否則整排玻璃板會是孤立十字。1.26 起柵欄也有 `minecraft:connection_*` state，`auto_connect()` 已一併處理（柵欄只連柵欄／柵欄門與實心方塊）。
 17. 全域 Python 可能沒有 numpy/amulet_nbt；本專案 `work/active_mob_tower/vendor/` 有 Python 3.10 的預編譯套件，用 `PYTHONPATH=<vendor> py -3.10` 或在生成器裡 `sys.path.insert` 即可，不要對其他版本盲目編譯。
 
+18. **方向 state 對照（2026-11 薰衣草丘小鎮以 PyMCTranslate bedrock_26_60 核對）**：
+    - 門 `minecraft:cardinal_direction` 跟 Java facing 差 90°：south→east、west→south、north→west、east→north。牆沿 X 走（門洞朝南北）時要用 `east` 或 `west`，寫成 `north`/`south` 會讓門板垂直於牆。
+    - 活板門 `direction` 0/1/2/3 = Java facing 東/西/南/北；開啟時板子貼在 facing 的反側，所以百葉窗放在牆外一格、`direction` 用牆的外法線方向。
+    - 床 `direction` 0/1/2/3 = 床頭朝南/西/北/東；樓梯 `weirdo_direction` 0/1/2/3 = 高側朝東/西/南/北。
+    - 火把 `torch_facing_direction`：PyMCTranslate 對照為 `west` → Java 牆火把 facing east（貼在西側方塊上）。這與 block-catalog 舊寫法「貼西牆用 east」相反，尚未遊戲實測；不確定時改用燈籠＋鐵鍊。
+19. 大型建築群（超過 64×64）可用「單一大陣列＋地塊表」：每棟一個 `build(p)` 模組、只用地塊局部座標並由 Plot 擋住越界，最後統一 `auto_connect`、切 50×50 分件、function 一鍵載入；可多個子代理平行建造。
+20. 水中的柵欄、樓梯、半磚、海草等非實心方塊，次層（第二個 block_indices）要放水，否則載入後周圍會出現空氣泡；tickingarea 每區不可超過 100 區塊，150×150 要拆兩區。
+
 ## 範例適用範圍
 
 temple_example.py 是固定座標的可修改範例，不是任意尺寸參數化生成器。render_example.py 只適用該範例產生的 voxel/palette 檔案及標題；其他建築要調整標題、畫布與相機。花盆、鐘、告示等 block entity 的特殊內容需另外設定，範例不含告示文字。套件格式验证只能證明結構與容器一致，不能證明每版客戶端都正確顯示。
