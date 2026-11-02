@@ -1,0 +1,20 @@
+{
+  "name": "minecraft-building-site",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Minecraft 基岩版建築 3D 展示網站（靜態，部署於 Vercel）",
+  "type": "module",
+  "scripts": {
+    "build": "node site/build.mjs",
+    "preview": "node site/serve.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "three": "0.187.0"
+  },
+  "optionalDependencies": {
+    "sharp": "^0.35.5"
+  }
+}

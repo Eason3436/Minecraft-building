@@ -21,3 +21,7 @@ work/
 # Tool state
 .omo/
 __pycache__/
+
+# Website build
+node_modules/
+site/dist/
