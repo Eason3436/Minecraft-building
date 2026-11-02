@@ -460,8 +460,10 @@ for (const b of bList) {
     const structures = pk.structs.map((s) => ({ id: s.id, size: s.size, blocks: s.blocks, offset: offsets.get(s.id) || null }));
     const entryFns = pk.funcs.map(([n]) => n).filter((n) => /^(.*\/)?(start|build|place|prepare|cleanup|station|stop|cancel|port_build|berth\d*)$/.test(n));
 
+    // 預設模型：有組裝用第一個組裝；全是獨立模組時用方塊最多的那個
+    const defModel = models.find((m) => m.kind === 'assembly') || models.reduce((a, m) => (m.blocks > a.blocks ? m : a), models[0]);
     versions.push({
-      id: vid, label, rel: pk.relDir, packName, version: verStr,
+      id: vid, label, rel: pk.relDir, packName, version: verStr, defaultModel: defModel.id,
       description: (pk.header.description || '').trim(),
       blocks: pk.structs.reduce((t, s) => t + s.blocks, 0),
       files, images, models, structures, functions: entryFns,

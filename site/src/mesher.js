@@ -54,7 +54,8 @@ export function buildPaletteInfo(blocks, colors) {
       const o = (i * 6 + d) * 4;
       const g = glow ? 1.12 : 1;
       faceCol[o] = Math.min(255, col[0] * g); faceCol[o + 1] = Math.min(255, col[1] * g); faceCol[o + 2] = Math.min(255, col[2] * g);
-      faceCol[o + 3] = k.layer === L_TRANS ? Math.max(40, c[9]) : 255;
+      // 不透明層：alpha 略低於 255 代表「鏤空」（樹葉），著色器用格點雜湊挖洞
+      faceCol[o + 3] = k.layer === L_TRANS ? Math.max(40, c[9]) : (alpha < 1 && alpha >= 0.9 ? 250 : 255);
     }
     if (k.kind === K_CUBE && k.layer !== L_TRANS) {
       solid[i] = 1;

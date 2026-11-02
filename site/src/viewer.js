@@ -29,6 +29,14 @@ function patchMaterial(mat, { grid = true } = {}) {
         vec3 cellP = floor(vBlockPos - vObjNormal * 0.02);
         float h = fract(sin(dot(cellP, vec3(12.9898, 78.233, 37.719))) * 43758.5453);
         diffuseColor.rgb *= 0.955 + 0.075 * h;
+        #ifdef OPAQUE
+        if (vColor.a < 0.995) {
+          // 樹葉：每格切成 8×8 小格，隨機加深（模擬葉隙）
+          vec3 q = floor(vBlockPos * 8.0 - vObjNormal * 0.01);
+          float r = fract(sin(dot(q, vec3(27.17, 91.31, 53.77))) * 24634.6345);
+          diffuseColor.rgb *= r < 0.16 ? 0.58 : 0.8 + 0.28 * r;
+        }
+        #endif
         ${grid ? `vec3 f = abs(fract(vBlockPos) - 0.5);
         float e = an.x > 0.5 ? max(f.y, f.z) : (an.y > 0.5 ? max(f.x, f.z) : max(f.x, f.y));
         float fw = fwidth(e);
@@ -171,6 +179,10 @@ export class Viewer {
     this.root.position.set(-X / 2, 0, -Z / 2);
     this.root.updateMatrixWorld(true);
     this.fitCamera(true);
+    // 手機上的大模型降低解析度，保持流暢
+    const dpr = window.devicePixelRatio || 1;
+    this.renderer.setPixelRatio(Math.min(dpr, isTouch && model.blocks > 800000 ? 1.5 : 2));
+    this.resize();
     this.loadStart = performance.now();
     this.firstChunkAt = null;
     const w = new Worker(new URL('./worker.js?v=__BUILD__', import.meta.url), { type: 'module' });

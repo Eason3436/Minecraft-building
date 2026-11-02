@@ -136,9 +136,10 @@ function searchText(b) {
   return b._s;
 }
 function defaultVersion(b) { return b.versions.find((v) => v.id === b.defaultVersion) || b.versions[0]; }
+function defaultModel(v) { return v.models.find((m) => m.id === v.defaultModel) || v.models[0]; }
 function cardHtml(b) {
   const v = defaultVersion(b);
-  const m = v.models[0];
+  const m = defaultModel(v);
   const img = b.cover ? `<img src="${esc(b.cover)}" alt="${esc(b.name)} 渲染圖" loading="lazy" decoding="async">` : '';
   return `<a class="card" href="#/b/${encodeURIComponent(b.slug)}">
     <div class="card-img">${img}${b.versions.length > 1 ? `<span class="badge">${b.versions.length} 個版本</span>` : ''}</div>
@@ -266,7 +267,7 @@ function renderBuilding(b, verId, modelId) {
   sel.addEventListener('change', () => setHash(st.v.id, sel.value));
   function setHash(vid, mid) {
     const v = b.versions.find((x) => x.id === vid) || defaultVersion(b);
-    const m = v.models.find((x) => x.id === mid) || v.models[0];
+    const m = v.models.find((x) => x.id === mid) || defaultModel(v);
     const hash = `#/b/${encodeURIComponent(b.slug)}/${encodeURIComponent(v.id)}/${encodeURIComponent(m.id)}`;
     if (location.hash !== hash) history.replaceState(null, '', hash);
     st.select(v.id, m.id);
@@ -314,7 +315,7 @@ function renderBuilding(b, verId, modelId) {
 
   st.select = (vid, mid) => {
     const v = b.versions.find((x) => x.id === vid) || defaultVersion(b);
-    const m = v.models.find((x) => x.id === mid) || v.models[0];
+    const m = v.models.find((x) => x.id === mid) || defaultModel(v);
     const vChanged = st.v !== v;
     st.v = v;
     if (vChanged) {
@@ -383,7 +384,7 @@ function renderVersionInfo(st, v) {
     <h2>${esc(v.packName || b.name)} <span class="sub">${v.version ? 'v' + esc(v.version) : ''}</span></h2>
     ${v.description ? `<p class="desc clamp">${esc(v.description)}</p>${v.description.length > 90 ? '<button type="button" class="more">展開全文</button>' : ''}` : ''}
     <dl class="facts">
-      <div><dt>尺寸（寬×深×高）</dt><dd id="fact-size">${dimLong(v.models[0].size)}</dd></div>
+      <div><dt>尺寸（寬×深×高）</dt><dd id="fact-size">${dimLong(defaultModel(v).size)}</dd></div>
       <div><dt>方塊數</dt><dd>${fmtInt(v.blocks)}</dd></div>
       <div><dt>結構數</dt><dd>${v.structures.length} 個</dd></div>
       <div><dt>行為包大小</dt><dd>${fmtBytes(f.mcpack.bytes)}</dd></div>
@@ -431,7 +432,8 @@ function renderVersionInfo(st, v) {
   }).catch(() => { guide.textContent = '無法載入使用說明。'; });
 }
 
-const CMD_RE = /\/(?:function|structure|execute|give|tp|teleport|tickingarea|gamerule|fill|clone|setblock|scoreboard|kill|summon|time|weather|gamemode|effect|setworldspawn|spawnpoint|difficulty|tellraw|title|clear|playsound|particle)\b[^，。；、）」】　\n]*/g;
+// 行內指令：遇到中文字或全形標點就結束
+const CMD_RE = /\/(?:function|structure|execute|give|tp|teleport|tickingarea|gamerule|fill|clone|setblock|scoreboard|kill|summon|time|weather|gamemode|effect|setworldspawn|spawnpoint|difficulty|tellraw|title|clear|playsound|particle)\b[^\u3000-\u303f\uff00-\uffef\u4e00-\u9fff\n]*/g;
 function guideHtml(text) {
   return text.split('\n').map((line) => {
     const t = line.trim();

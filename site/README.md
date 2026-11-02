@@ -38,7 +38,7 @@ npm run preview    # 開 http://localhost:4173/
 ## 目錄
 
 ```
-package.json            三個指令：build / preview；依賴 three（固定版本）、sharp（選用）
+package.json            指令 build / preview；依賴 three、fflate（舊版 Safari 解 gzip）固定版本，sharp 為選用
 vercel.json             Vercel 建置設定與 HTTP 標頭
 site/build.mjs          建置腳本（Node，零額外依賴解析 ZIP 與 NBT）
 site/serve.mjs          本機預覽用的小型靜態伺服器
@@ -53,7 +53,7 @@ site/src/               前端：index.html、styles.css、app.js（路由與頁
 
 | 路徑 | 內容 |
 |---|---|
-| `catalog.json` | 所有建築 → 版本 → 模型。版本含 manifest 名稱／簡介／版本、方塊數、下載檔（`files.mcpack/txt`，含原始中文檔名供 `download` 屬性還原）、圖片（`thumb` 縮圖、`large` 大圖、`full` 原始 PNG）、結構清單（ID、尺寸 [X,Y,Z]、方塊數、組裝偏移）。模型含 `kind`（assembly／part／module／single）、尺寸、方塊數、`parts[]`（體素檔 URL、偏移、尺寸）。 |
+| `catalog.json` | 所有建築 → 版本 → 模型。版本含 manifest 名稱／簡介／版本、方塊數、預設模型 `defaultModel`、下載檔（`files.mcpack/txt`，含原始中文檔名供 `download` 屬性還原）、圖片（`thumb` 縮圖、`large` 大圖、`full` 原始 PNG）、結構清單（ID、尺寸 [X,Y,Z]、方塊數、組裝偏移）。模型含 `kind`（assembly／part／module／single）、尺寸、方塊數、`parts[]`（體素檔 URL、偏移、尺寸）。 |
 | `data/v/<雜湊>.bin` | 每個不重複的 `.mcstructure` 一個檔（內容雜湊命名，可永久快取），gzip 壓縮。解開後：`"MCV1"`、`u16 X, Y, Z`、`u16 調色盤數`、`u32 調色盤 JSON 長度`、`u32 run 數`、調色盤 JSON（`[[名稱, states?], …]`，補齊到 4 位元組）、`u16 值[run 數]`（補齊到 4 位元組）、`u16 長度[run 數]`。值 `0xFFFF` 是空；順序 y → z → x（x 最快）。空氣、屏障、結構空位、光源方塊視為空；含水方塊的次層只在主層是空的時候畫成水。 |
 | `data/colors.json` | 用到的方塊 → `[頂 r,g,b, 側 r,g,b, 底 r,g,b, alpha×255]`。 |
 | `img/<雜湊>-720.webp`、`-1800.webp` | sharp 產生的縮圖與大圖；沒有 sharp 時改用原圖。 |
