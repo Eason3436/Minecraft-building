@@ -1,0 +1,229 @@
+﻿進擊的巨人城牆內世界 — Minecraft 基岩版結構行為包（v1.0.0）
+
+【簡介】
+還原《進擊的巨人》帕拉迪島「城牆之內」的世界：只有建築、森林、草原，不含任何人物或巨人。
+三道同心巨牆由外而內為瑪利亞之牆、羅塞之牆、希娜之牆，正中央是王都米特拉斯。
+附圖：進擊的巨人城牆內世界_整體渲染.png、進擊的巨人城牆內世界_內部剖視.png（依方塊資料繪製的示意圖，非遊戲截圖）。
+
+【比例】
+  ・三道牆的半徑依原作設定 480 km：380 km：250 km 等比縮小為 330：261：172 格
+    （水平方向約 1 格 ＝ 1.45 km，三道牆彼此的相對大小是正確的）。
+  ・牆高 50 m、房屋、王宮、教堂等建築本體是 1 格 ＝ 1 公尺。
+  ・因此城區、村莊、森林只呈現代表性的街區，實際原作的城市會大上許多倍；這是為了在 Minecraft 裡放得下所做的取捨。
+
+【尺寸】
+寬 768 × 深 768 × 高 59 格（X=768、Y 最高 59、Z=768），切成 12×12 共 144 個 64×64 分件，
+每件高度只裁到該區最高的方塊。共約 564 萬個方塊、115 種方塊。
+方位：北（-Z）在上，南（+Z）是希干希納區與托洛斯特區。結構第 0 層是石頭、第 3 層是地表草地。
+
+【內容】
+  三道巨牆：牆高 50 格、厚 7 格，內外兩側每隔一段有扶壁（下段加寬成階梯狀），牆頂有走道、護欄與垛口，
+    牆面用方解石、閃長岩、平滑石、安山岩、凝灰岩混色表現風化污漬。
+  12 個城區：每道牆在東西南北各突出一個半圓形城區，城區有自己的城牆、外門與內門。
+    外門有門框、拱頂鍵石、升起的吊閘、金色牆徽、沿牆面直上的升降架與牆頂機房；城區牆頂有固定砲。
+    城區名稱（括號為正方位）：
+      瑪利亞之牆：希干希納區（南）、瑪利亞東城區、瑪利亞北城區、瑪利亞西城區
+      羅塞之牆：托洛斯特區（南）、卡拉內斯區（東）、羅塞北城區、羅塞西城區
+      希娜之牆：艾爾米哈區（南）、斯托黑斯區（東）、希娜北城區、希娜西城區
+    城區內有主街、橫街、廣場噴泉、街燈、教堂（鐘樓與尖頂，瑪利亞與羅塞城區），
+    以及密集的木骨架民宅（白灰泥牆＋深色木梁、紅磚／赭紅／深紅等屋瓦、煙囪），共 145 棟，皆有室內：
+    木地板、樓板、梯子、吊燈、桌椅、工作台、熔爐、箱子、書架、二樓床鋪。
+  王都米特拉斯（中央）：圓塔城牆（8 座圓錐頂圓塔、4 座城門）、
+    王宮：北側四層主殿（一二樓打通的王座大廳，紅毯、金色王座、石柱、吊燈）、
+          鼓座上的肋拱圓頂（深色瓦＋金色肋條、頂端燈籠亭）、前方雙尖塔、東西側翼與正面翼圍出的中庭（噴泉、柏樹、燈柱）、
+          正面拱門通道與雕像柱廣場、翼端階梯山牆；
+    北側幾何花園（樹籬格紋、放射狀碎石步道、圓形噴泉、柏樹列）；
+    城內 169 棟石造連棟屋（3～5 層）、運河（石砌堤岸、欄杆、街燈）與多座石橋、運河旁市集廣場（噴泉、彩色布篷攤位）。
+  河流：從東北穿過三道牆的水門（拱形開口＋鐵柵）流進米特拉斯運河，再往西南流出。
+  鄉間（牆與牆之間）：9 個村莊（水井、菜園、風車或小教堂，共 58 棟）、394 塊麥田／胡蘿蔔／馬鈴薯田（含灌溉水渠、乾草捆、樹籬）、
+    森林約 4200 棵（橡樹、白樺、雲杉、深色橡樹、柏樹）、草原的草叢與野花、湖。
+  特別地點：訓練兵團本部（口字形長樓圍砂地操場、主塔、中央方尖碑、牆外木樁靶與立體機動練習木架）、
+    烏特加爾古城（羅塞之牆內，半毀方塔與圍牆）、巨大樹森林（瑪利亞之牆內西南，10 棵高 34～44 格的巨木）。
+
+【一鍵放置（建議，超平坦世界）】
+請準備一個 768×768 的平坦空地。座標 = 場地西北角（最小 X/Y/Z），原點 Y 用 -64（超平坦世界，地表會剛好對齊 -61 的草地）。
+以原點 (0, -64, 0) 為例，依序執行（兩組座標都要一樣）：
+  /execute positioned 0 -64 0 run function aot/prepare
+  （等 3～5 秒讓區塊載入）
+  /execute positioned 0 -64 0 run function aot/build1
+  （等 3～5 秒）
+  /execute positioned 0 -64 0 run function aot/build2
+  ……依此類推到 build6（每段放 2 列共 24 個分件，聊天欄會顯示「第 N/6 段完成」）
+  /function aot/cleanup
+每一段會建立 6 個常駐區塊（tickingarea，每個 128×128）；世界上限 10 個，請先確認你的世界沒有超過 4 個其他常駐區塊。
+若某一塊沒出現，通常是區塊尚未載入：走近那一區再用同樣座標執行一次該段 build（重複載入不會壞）。
+一般世界：原點 Y 改成當地地面高度減 3，並先整平 768×768 的空地。
+
+【逐件放置（結構方塊或指令）】
+取得結構方塊：/give @s structure_block → 放下 → 模式切「載入」→ 輸入結構名稱（旋轉 0°、無鏡像、完整性 100%）。
+分件 aot_261102:tile_x<i>_z<j> 放在 (X+64i, Y, Z+64j)，i、j 都是 0～11。以原點 (0, -64, 0) 為例：
+  /structure load aot_261102:tile_x0_z0 0 -64 0
+  /structure load aot_261102:tile_x1_z0 64 -64 0
+  /structure load aot_261102:tile_x2_z0 128 -64 0
+  /structure load aot_261102:tile_x3_z0 192 -64 0
+  /structure load aot_261102:tile_x4_z0 256 -64 0
+  /structure load aot_261102:tile_x5_z0 320 -64 0
+  /structure load aot_261102:tile_x6_z0 384 -64 0
+  /structure load aot_261102:tile_x7_z0 448 -64 0
+  /structure load aot_261102:tile_x8_z0 512 -64 0
+  /structure load aot_261102:tile_x9_z0 576 -64 0
+  /structure load aot_261102:tile_x10_z0 640 -64 0
+  /structure load aot_261102:tile_x11_z0 704 -64 0
+  /structure load aot_261102:tile_x0_z1 0 -64 64
+  /structure load aot_261102:tile_x1_z1 64 -64 64
+  /structure load aot_261102:tile_x2_z1 128 -64 64
+  /structure load aot_261102:tile_x3_z1 192 -64 64
+  /structure load aot_261102:tile_x4_z1 256 -64 64
+  /structure load aot_261102:tile_x5_z1 320 -64 64
+  /structure load aot_261102:tile_x6_z1 384 -64 64
+  /structure load aot_261102:tile_x7_z1 448 -64 64
+  /structure load aot_261102:tile_x8_z1 512 -64 64
+  /structure load aot_261102:tile_x9_z1 576 -64 64
+  /structure load aot_261102:tile_x10_z1 640 -64 64
+  /structure load aot_261102:tile_x11_z1 704 -64 64
+  /structure load aot_261102:tile_x0_z2 0 -64 128
+  /structure load aot_261102:tile_x1_z2 64 -64 128
+  /structure load aot_261102:tile_x2_z2 128 -64 128
+  /structure load aot_261102:tile_x3_z2 192 -64 128
+  /structure load aot_261102:tile_x4_z2 256 -64 128
+  /structure load aot_261102:tile_x5_z2 320 -64 128
+  /structure load aot_261102:tile_x6_z2 384 -64 128
+  /structure load aot_261102:tile_x7_z2 448 -64 128
+  /structure load aot_261102:tile_x8_z2 512 -64 128
+  /structure load aot_261102:tile_x9_z2 576 -64 128
+  /structure load aot_261102:tile_x10_z2 640 -64 128
+  /structure load aot_261102:tile_x11_z2 704 -64 128
+  /structure load aot_261102:tile_x0_z3 0 -64 192
+  /structure load aot_261102:tile_x1_z3 64 -64 192
+  /structure load aot_261102:tile_x2_z3 128 -64 192
+  /structure load aot_261102:tile_x3_z3 192 -64 192
+  /structure load aot_261102:tile_x4_z3 256 -64 192
+  /structure load aot_261102:tile_x5_z3 320 -64 192
+  /structure load aot_261102:tile_x6_z3 384 -64 192
+  /structure load aot_261102:tile_x7_z3 448 -64 192
+  /structure load aot_261102:tile_x8_z3 512 -64 192
+  /structure load aot_261102:tile_x9_z3 576 -64 192
+  /structure load aot_261102:tile_x10_z3 640 -64 192
+  /structure load aot_261102:tile_x11_z3 704 -64 192
+  /structure load aot_261102:tile_x0_z4 0 -64 256
+  /structure load aot_261102:tile_x1_z4 64 -64 256
+  /structure load aot_261102:tile_x2_z4 128 -64 256
+  /structure load aot_261102:tile_x3_z4 192 -64 256
+  /structure load aot_261102:tile_x4_z4 256 -64 256
+  /structure load aot_261102:tile_x5_z4 320 -64 256
+  /structure load aot_261102:tile_x6_z4 384 -64 256
+  /structure load aot_261102:tile_x7_z4 448 -64 256
+  /structure load aot_261102:tile_x8_z4 512 -64 256
+  /structure load aot_261102:tile_x9_z4 576 -64 256
+  /structure load aot_261102:tile_x10_z4 640 -64 256
+  /structure load aot_261102:tile_x11_z4 704 -64 256
+  /structure load aot_261102:tile_x0_z5 0 -64 320
+  /structure load aot_261102:tile_x1_z5 64 -64 320
+  /structure load aot_261102:tile_x2_z5 128 -64 320
+  /structure load aot_261102:tile_x3_z5 192 -64 320
+  /structure load aot_261102:tile_x4_z5 256 -64 320
+  /structure load aot_261102:tile_x5_z5 320 -64 320
+  /structure load aot_261102:tile_x6_z5 384 -64 320
+  /structure load aot_261102:tile_x7_z5 448 -64 320
+  /structure load aot_261102:tile_x8_z5 512 -64 320
+  /structure load aot_261102:tile_x9_z5 576 -64 320
+  /structure load aot_261102:tile_x10_z5 640 -64 320
+  /structure load aot_261102:tile_x11_z5 704 -64 320
+  /structure load aot_261102:tile_x0_z6 0 -64 384
+  /structure load aot_261102:tile_x1_z6 64 -64 384
+  /structure load aot_261102:tile_x2_z6 128 -64 384
+  /structure load aot_261102:tile_x3_z6 192 -64 384
+  /structure load aot_261102:tile_x4_z6 256 -64 384
+  /structure load aot_261102:tile_x5_z6 320 -64 384
+  /structure load aot_261102:tile_x6_z6 384 -64 384
+  /structure load aot_261102:tile_x7_z6 448 -64 384
+  /structure load aot_261102:tile_x8_z6 512 -64 384
+  /structure load aot_261102:tile_x9_z6 576 -64 384
+  /structure load aot_261102:tile_x10_z6 640 -64 384
+  /structure load aot_261102:tile_x11_z6 704 -64 384
+  /structure load aot_261102:tile_x0_z7 0 -64 448
+  /structure load aot_261102:tile_x1_z7 64 -64 448
+  /structure load aot_261102:tile_x2_z7 128 -64 448
+  /structure load aot_261102:tile_x3_z7 192 -64 448
+  /structure load aot_261102:tile_x4_z7 256 -64 448
+  /structure load aot_261102:tile_x5_z7 320 -64 448
+  /structure load aot_261102:tile_x6_z7 384 -64 448
+  /structure load aot_261102:tile_x7_z7 448 -64 448
+  /structure load aot_261102:tile_x8_z7 512 -64 448
+  /structure load aot_261102:tile_x9_z7 576 -64 448
+  /structure load aot_261102:tile_x10_z7 640 -64 448
+  /structure load aot_261102:tile_x11_z7 704 -64 448
+  /structure load aot_261102:tile_x0_z8 0 -64 512
+  /structure load aot_261102:tile_x1_z8 64 -64 512
+  /structure load aot_261102:tile_x2_z8 128 -64 512
+  /structure load aot_261102:tile_x3_z8 192 -64 512
+  /structure load aot_261102:tile_x4_z8 256 -64 512
+  /structure load aot_261102:tile_x5_z8 320 -64 512
+  /structure load aot_261102:tile_x6_z8 384 -64 512
+  /structure load aot_261102:tile_x7_z8 448 -64 512
+  /structure load aot_261102:tile_x8_z8 512 -64 512
+  /structure load aot_261102:tile_x9_z8 576 -64 512
+  /structure load aot_261102:tile_x10_z8 640 -64 512
+  /structure load aot_261102:tile_x11_z8 704 -64 512
+  /structure load aot_261102:tile_x0_z9 0 -64 576
+  /structure load aot_261102:tile_x1_z9 64 -64 576
+  /structure load aot_261102:tile_x2_z9 128 -64 576
+  /structure load aot_261102:tile_x3_z9 192 -64 576
+  /structure load aot_261102:tile_x4_z9 256 -64 576
+  /structure load aot_261102:tile_x5_z9 320 -64 576
+  /structure load aot_261102:tile_x6_z9 384 -64 576
+  /structure load aot_261102:tile_x7_z9 448 -64 576
+  /structure load aot_261102:tile_x8_z9 512 -64 576
+  /structure load aot_261102:tile_x9_z9 576 -64 576
+  /structure load aot_261102:tile_x10_z9 640 -64 576
+  /structure load aot_261102:tile_x11_z9 704 -64 576
+  /structure load aot_261102:tile_x0_z10 0 -64 640
+  /structure load aot_261102:tile_x1_z10 64 -64 640
+  /structure load aot_261102:tile_x2_z10 128 -64 640
+  /structure load aot_261102:tile_x3_z10 192 -64 640
+  /structure load aot_261102:tile_x4_z10 256 -64 640
+  /structure load aot_261102:tile_x5_z10 320 -64 640
+  /structure load aot_261102:tile_x6_z10 384 -64 640
+  /structure load aot_261102:tile_x7_z10 448 -64 640
+  /structure load aot_261102:tile_x8_z10 512 -64 640
+  /structure load aot_261102:tile_x9_z10 576 -64 640
+  /structure load aot_261102:tile_x10_z10 640 -64 640
+  /structure load aot_261102:tile_x11_z10 704 -64 640
+  /structure load aot_261102:tile_x0_z11 0 -64 704
+  /structure load aot_261102:tile_x1_z11 64 -64 704
+  /structure load aot_261102:tile_x2_z11 128 -64 704
+  /structure load aot_261102:tile_x3_z11 192 -64 704
+  /structure load aot_261102:tile_x4_z11 256 -64 704
+  /structure load aot_261102:tile_x5_z11 320 -64 704
+  /structure load aot_261102:tile_x6_z11 384 -64 704
+  /structure load aot_261102:tile_x7_z11 448 -64 704
+  /structure load aot_261102:tile_x8_z11 512 -64 704
+  /structure load aot_261102:tile_x9_z11 576 -64 704
+  /structure load aot_261102:tile_x10_z11 640 -64 704
+  /structure load aot_261102:tile_x11_z11 704 -64 704
+
+【參觀路線】（括號內是相對原點的 X, Z；地面高度在結構第 4 層，超平坦即 Y=-60）
+  1. 希干希納區外門 (384, 758)：看外門升降架、吊閘、牆徽；進城區看廣場噴泉與教堂。
+  2. 往北穿過內門到瑪利亞之牆內，再到托洛斯特區外門 (384, 685)，城區中心約 (384, 662)。
+  3. 托洛斯特區東北邊的訓練兵團本部 (492, 571)；西南邊是巨大樹森林 (約 243, 649)。
+  4. 繼續往北：艾爾米哈區 (384, 572 附近) → 希娜之牆內 → 米特拉斯南門 (384, 484)。
+  5. 米特拉斯：運河石橋 (384, 462)、王宮正面廣場 (384, 420)、中庭 (384, 390)、王座大廳 (384, 368)、
+     圓頂 (384, 364)、北側幾何花園 (384, 327)、運河旁市集廣場 (448, 380)。
+  6. 其他：烏特加爾古城 (276, 198)、西北方的湖 (126, 235)、卡拉內斯區 (東，645, 384)、斯托黑斯區 (東，556, 384)。
+  爬上城牆：牆頂有走道，可從城區外門的牆頂機房看整片城牆。
+
+【空氣與地形】
+每個分件的空氣會清空原有方塊（例如草叢、樹），結構第 0～3 層包含石頭、泥土與草地。
+不要在已有建築的地方放置。只需匯入行為包，不需更換 db 或世界檔。此檔為基岩版行為包，不是 Java 版 schematic。
+
+【復刻重點與簡化】
+  ・依參考圖做出：平直高牆＋等距扶壁、牆面污漬、城門上方升降架、半圓突出城區、密集木骨架紅瓦屋、教堂尖塔、風車、
+    王宮圓頂＋雙尖塔＋深色屋頂長翼與階梯山牆、幾何花園、訓練兵團口字形中庭與方尖碑、運河石橋與市集。
+  ・簡化：城市規模大幅縮小（見【比例】）；牆是正圓，城區名稱以原作已知者為主，其他用方位命名；
+    房屋室內是通用家具配置；巨大樹以 34～44 格表現（原作約 80 m）。
+  ・依需求不放任何人物、巨人或生物。
+
+【驗證】
+已重新解析每個分件的 NBT（尺寸、索引範圍、palette 型別）、核對包內檔案與 ZIP CRC、function 偏移與分件座標一致。
+方塊名稱與 state 依 Mojang 官方 mojang-blocks.json 檢查（方塊版本 1.26.60）。
+尚未在 Minecraft 客戶端實際載入測試。
