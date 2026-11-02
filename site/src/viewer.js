@@ -50,8 +50,9 @@ export class Viewer {
     renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
     renderer.setClearColor(0x000000, 0);
     renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.shadowMap.type = THREE.PCFShadowMap;
     renderer.shadowMap.autoUpdate = false;
+    renderer.shadowMap.needsUpdate = true; // 第一張畫面先產生陰影貼圖，避免取樣到空貼圖
     renderer.domElement.className = 'viewer-canvas';
     host.prepend(renderer.domElement);
     this.renderer = renderer;
@@ -88,15 +89,22 @@ export class Viewer {
     const g = document.createElement('canvas'); g.width = g.height = 256;
     const cx = g.getContext('2d');
     const grad = cx.createRadialGradient(128, 128, 0, 128, 128, 128);
-    grad.addColorStop(0, 'rgba(255,255,255,1)'); grad.addColorStop(0.55, 'rgba(255,255,255,0.85)'); grad.addColorStop(1, 'rgba(255,255,255,0)');
+    // alphaMap 讀的是綠色通道，所以用灰階漸層
+    grad.addColorStop(0, 'rgb(255,255,255)'); grad.addColorStop(0.35, 'rgb(220,220,220)'); grad.addColorStop(0.7, 'rgb(80,80,80)'); grad.addColorStop(1, 'rgb(0,0,0)');
     cx.fillStyle = grad; cx.fillRect(0, 0, 256, 256);
     const tex = new THREE.CanvasTexture(g);
-    this.groundMat = new THREE.MeshLambertMaterial({ color: 0xdfe3e6, alphaMap: tex, transparent: true, depthWrite: false });
+    // 模型下方的淡色光暈（不打光、邊緣漸隱，看不到地平線）＋只顯示陰影的透明地面
+    this.groundMat = new THREE.MeshBasicMaterial({ color: 0xc6cdd0, alphaMap: tex, transparent: true, opacity: 0.55, depthWrite: false });
     this.ground = new THREE.Mesh(new THREE.CircleGeometry(1, 72), this.groundMat);
     this.ground.rotation.x = -Math.PI / 2;
-    this.ground.receiveShadow = true;
-    this.ground.renderOrder = -1;
+    this.ground.renderOrder = -2;
     scene.add(this.ground);
+    this.shadowMat = new THREE.ShadowMaterial({ color: 0x14202a, opacity: 0.24, depthWrite: false });
+    this.shadowPlane = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), this.shadowMat);
+    this.shadowPlane.rotation.x = -Math.PI / 2;
+    this.shadowPlane.receiveShadow = true;
+    this.shadowPlane.renderOrder = -1;
+    scene.add(this.shadowPlane);
 
     this.root = new THREE.Group();
     this.root.scale.setScalar(1 / 16);
@@ -129,7 +137,9 @@ export class Viewer {
 
   applyTheme() {
     const dark = document.documentElement.dataset.theme === 'dark' || (document.documentElement.dataset.theme !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches);
-    this.groundMat.color.set(dark ? 0x3a4048 : 0xe4e7ea);
+    this.groundMat.color.set(dark ? 0x0b0d10 : 0xc6cdd0);
+    this.groundMat.opacity = dark ? 0.45 : 0.55;
+    if (this.shadowMat) this.shadowMat.opacity = dark ? 0.4 : 0.24;
     this.hemi.groundColor.set(dark ? 0x6f7680 : 0x8d939c);
   }
 
@@ -230,12 +240,24 @@ export class Viewer {
     const [X, Y, Z] = this.model.size;
     const R = 0.5 * Math.hypot(X, Y, Z);
     this.R = R;
-    const target = new THREE.Vector3(0, Y * 0.42, 0);
-    const fov = THREE.MathUtils.degToRad(this.camera.fov);
-    const aspect = Math.max(0.5, Math.min(this.camera.aspect || 1, 2));
-    let dist = R / Math.sin(fov / 2) * (aspect < 1 ? 1.0 / Math.max(aspect, 0.62) : 1.0) * 0.92;
-    const az = THREE.MathUtils.degToRad(38), el = THREE.MathUtils.degToRad(26);
+    const target = new THREE.Vector3(0, Y * 0.46, 0);
+    const vfov = THREE.MathUtils.degToRad(this.camera.fov);
+    const aspect = this.camera.aspect || 1;
+    const tanV = Math.tan(vfov / 2), tanH = tanV * aspect;
+    // 細長的模型（例如鐵道、戰艦）把長軸轉到畫面橫向
+    const az = THREE.MathUtils.degToRad(X >= Z ? 32 : 58), el = THREE.MathUtils.degToRad(27);
     const dir = new THREE.Vector3(Math.sin(az) * Math.cos(el), Math.sin(el), Math.cos(az) * Math.cos(el));
+    const up = new THREE.Vector3(0, 1, 0);
+    const right = new THREE.Vector3().crossVectors(up, dir).normalize();
+    const camUp = new THREE.Vector3().crossVectors(dir, right).normalize();
+    // 讓包圍盒 8 個角都落在視野內（留 8% 邊界）
+    let dist = 0;
+    const c = new THREE.Vector3();
+    for (const sx of [-X / 2, X / 2]) for (const sy of [0, Y]) for (const sz of [-Z / 2, Z / 2]) {
+      c.set(sx, sy, sz).sub(target);
+      const zc = c.dot(dir), xc = Math.abs(c.dot(right)), yc = Math.abs(c.dot(camUp));
+      dist = Math.max(dist, zc + xc / (tanH * 0.92), zc + yc / (tanV * 0.9));
+    }
     this.camera.near = Math.max(0.05, R / 400);
     this.camera.far = R * 30 + dist;
     this.camera.position.copy(target).addScaledVector(dir, dist);
@@ -246,9 +268,11 @@ export class Viewer {
     this.controls.update();
     if (reset) {
       // 地面與陰影範圍
-      const gr = Math.max(X, Z) * 1.5 + 24;
+      const gr = Math.max(X, Z) * 0.85 + 12;
       this.ground.scale.setScalar(gr);
-      this.ground.position.y = -0.02;
+      this.ground.position.y = -0.04;
+      this.shadowPlane.scale.setScalar(Math.max(X, Z) * 6 + 80);
+      this.shadowPlane.position.y = -0.02;
       const s = this.sun;
       const sd = new THREE.Vector3(-0.55, 1.0, 0.42).normalize();
       s.position.copy(sd.multiplyScalar(R * 2.2)).add(new THREE.Vector3(0, Y * 0.3, 0));
@@ -342,6 +366,7 @@ export class Viewer {
     this.controls.dispose();
     for (const m of this.materials) m.dispose();
     this.groundMat.dispose();
+    this.shadowMat.dispose();
     this.renderer.dispose();
     this.renderer.forceContextLoss?.();
     this.renderer.domElement.remove();

@@ -9,9 +9,10 @@
     "preview": "node site/serve.mjs"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20.9"
   },
   "dependencies": {
+    "fflate": "0.8.2",
     "three": "0.187.0"
   },
   "optionalDependencies": {

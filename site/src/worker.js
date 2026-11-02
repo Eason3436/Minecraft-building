@@ -11,9 +11,14 @@ async function fetchBytes(url, onBytes) {
   onBytes(buf.length);
   // 伺服器可能已經用 Content-Encoding 解過 gzip，先看檔頭
   if (buf[0] === 0x1f && buf[1] === 0x8b) {
-    const ds = new DecompressionStream('gzip');
-    const out = await new Response(new Blob([buf]).stream().pipeThrough(ds)).arrayBuffer();
-    return new Uint8Array(out);
+    if (typeof DecompressionStream === 'function') {
+      const ds = new DecompressionStream('gzip');
+      const out = await new Response(new Blob([buf]).stream().pipeThrough(ds)).arrayBuffer();
+      return new Uint8Array(out);
+    }
+    // 舊版 Safari（16.3 以前）沒有 DecompressionStream
+    const { gunzipSync } = await import('./vendor/fflate.js');
+    return gunzipSync(buf);
   }
   return buf;
 }

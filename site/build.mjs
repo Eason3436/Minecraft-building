@@ -544,6 +544,12 @@ const orbit = fs.readFileSync(path.join(threeDir, 'examples', 'jsm', 'controls',
   .replace(/from\s+['"]three['"]/g, "from './three.module.js'");
 fs.writeFileSync(path.join(DIST, 'vendor', 'OrbitControls.js'), orbit);
 fs.copyFileSync(path.join(threeDir, 'LICENSE'), path.join(DIST, 'vendor', 'three-LICENSE.txt'));
+// fflate：舊版 Safari（沒有 DecompressionStream）解 gzip 用
+const fflateDir = path.join(ROOT, 'node_modules', 'fflate');
+if (fs.existsSync(path.join(fflateDir, 'esm', 'browser.js'))) {
+  fs.copyFileSync(path.join(fflateDir, 'esm', 'browser.js'), path.join(DIST, 'vendor', 'fflate.js'));
+  if (fs.existsSync(path.join(fflateDir, 'LICENSE'))) fs.copyFileSync(path.join(fflateDir, 'LICENSE'), path.join(DIST, 'vendor', 'fflate-LICENSE.txt'));
+} else warn('找不到 fflate，舊版 Safari 可能無法解壓縮體素資料');
 
 // ---------------------------------------------------------------- 統計
 let distBytes = 0, distFiles = 0, biggest = 0;
