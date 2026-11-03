@@ -24,12 +24,16 @@ const ROT_LABELS = ['0°（原始方向）', '90°', '180°', '270°'];
 const MIRRORS = [StructureMirrorAxis.None, StructureMirrorAxis.X, StructureMirrorAxis.Z];
 const MIRROR_LABELS = ['不鏡像', '鏡像 X 軸', '鏡像 Z 軸'];
 
-// 放置速度：gap＝每塊之間等幾 tick、pass＝兩次放置之間、settle＝每批放完等多久再清掉落物
+// 放置速度（單位 tick，20 tick＝1 秒）
+//   gap：每塊之間等多久（至少 1，同一個 tick 只放一塊，跟結構方塊一次放 64 格一樣安全）
+//   pass：防掉落兩次放置之間、settle：每批放完等多久再清掉落物
+//   region：一次載入多大範圍（格），範圍越大載入次數越少；load：每次載入大約幾秒（只用來估時間）
 const SPEEDS = [
-  { label: '快（小建築）', gap: 0, pass: 2, settle: 4, load: 0.5 },
-  { label: '標準', gap: 5, pass: 5, settle: 6, load: 1 },
-  { label: '穩定（大建築，最不容易卡頓）', gap: 20, pass: 20, settle: 20, load: 2 },
+  { label: '快（每 tick 一塊）', gap: 1, pass: 2, settle: 4, region: 256, load: 2 },
+  { label: '標準（每 0.1 秒一塊）', gap: 2, pass: 4, settle: 6, region: 256, load: 2 },
+  { label: '穩定（每 0.25 秒一塊，手機／Switch 建議）', gap: 5, pass: 10, settle: 10, region: 192, load: 2 },
 ];
+const MAX_TICKING = 4; // 一批最多同時加幾個 tickingarea（世界上限 10，留空間給玩家自己的）
 const speedOf = (state) => SPEEDS[state?.speed ?? 1] ?? SPEEDS[1];
 
 const sleep = (ticks) => new Promise((r) => system.runTimeout(r, Math.max(1, ticks)));
@@ -334,10 +338,18 @@ system.runInterval(() => {
 // ───────────── 載入區塊（tickingarea） ─────────────
 
 function rectsOf(r) {
-  // 把一個範圍切成 ≤128×128 的小塊，每塊最多 9×9=81 個區塊，不超過 tickingarea 的 100 區塊上限
+  // 沿區塊格線切成 10×10 區塊（160×160 格）以內的小塊，剛好不超過 tickingarea 的 100 區塊上限
   const out = [];
-  for (let x = r.x0; x <= r.x1; x += 128)
-    for (let z = r.z0; z <= r.z1; z += 128) out.push({ x0: x, z0: z, x1: Math.min(r.x1, x + 127), z1: Math.min(r.z1, z + 127) });
+  const cx0 = Math.floor(r.x0 / 16), cx1 = Math.floor(r.x1 / 16);
+  const cz0 = Math.floor(r.z0 / 16), cz1 = Math.floor(r.z1 / 16);
+  for (let cx = cx0; cx <= cx1; cx += 10)
+    for (let cz = cz0; cz <= cz1; cz += 10)
+      out.push({
+        x0: Math.max(r.x0, cx * 16),
+        z0: Math.max(r.z0, cz * 16),
+        x1: Math.min(r.x1, (cx + 10) * 16 - 1),
+        z1: Math.min(r.z1, (cz + 10) * 16 - 1),
+      });
   return out;
 }
 
@@ -414,6 +426,30 @@ function debrisIn(dimension, r, y0, y1) {
 }
 
 /**
+ * 把建築塊依「最小角所在的 size×size 格子」分批，由北往南、由西往東排序。
+ * 某一批要載入的範圍超過 fits() 允許時，改用 64 格的小格子重分那一批。
+ */
+function splitBatches(pieces, origin, size, fits) {
+  const group = (list, sz) => {
+    const map = new Map();
+    for (const p of list) {
+      const i = Math.floor((p.loc.x - origin.x) / sz);
+      const j = Math.floor((p.loc.z - origin.z) / sz);
+      const k = `${j},${i}`;
+      if (!map.has(k)) map.set(k, { i, j, list: [] });
+      map.get(k).list.push(p);
+    }
+    return [...map.values()].sort((a, b) => a.j - b.j || a.i - b.i).map((g) => g.list);
+  };
+  const out = [];
+  for (const list of group(pieces, size)) {
+    if (size > CELL && !fits(list)) out.push(...group(list, CELL));
+    else out.push(list);
+  }
+  return out;
+}
+
+/**
  * pieces: [{ id, loc, size }]（size 為旋轉後尺寸）
  * opts: { rotation, mirror, twoPass, backup, title, player }
  * 回傳 undo 紀錄（有備份時）。
@@ -442,42 +478,44 @@ async function placePieces(dimension, pieces, box, opts) {
   const backedUp = new Set();
   const undo = opts.backup ? { job: jobId, dim: dimension.id, x: box.origin.x, y: y0, z: box.origin.z, nx, nz, title: opts.title } : undefined;
 
-  // 依 64 網格分批：每塊放進「最小角所在的格子」
-  const batches = new Map();
-  for (const p of pieces) {
-    const i = Math.min(nx - 1, Math.max(0, Math.floor((p.loc.x - box.origin.x) / CELL)));
-    const j = Math.min(nz - 1, Math.max(0, Math.floor((p.loc.z - box.origin.z) / CELL)));
-    const k = `${i},${j}`;
-    if (!batches.has(k)) batches.set(k, []);
-    batches.get(k).push(p);
-  }
-  const order = [...batches.keys()].sort((a, b) => {
-    const [ai, aj] = a.split(',').map(Number);
-    const [bi, bj] = b.split(',').map(Number);
-    return aj - bj || ai - bi;
-  });
+  const speed = opts.speed ?? SPEEDS[1];
+  const cellsTouching = (r) => {
+    const out = [];
+    for (let i = 0; i < nx; i++)
+      for (let j = 0; j < nz; j++) {
+        const c = cellRect(i, j);
+        if (intersects(c, r)) out.push([i, j, c]);
+      }
+    return out;
+  };
+  // 一批要載入的範圍：這批建築塊＋（有備份時）它們碰到的備份格
+  // 只備份真的會被建築塊蓋到的格子（環狀建築中間沒蓋到的地方不備份）
+  const cellsOfPieces = (list) => {
+    const seen = new Map();
+    for (const p of list) for (const n of cellsTouching(pieceRect(p))) seen.set(`${n[0]},${n[1]}`, n);
+    return [...seen.values()];
+  };
+  const regionOf = (list) => {
+    const touched = union(list.map(pieceRect));
+    return opts.backup ? union([touched, ...cellsOfPieces(list).map((n) => n[2])]) : touched;
+  };
+  const batches = splitBatches(pieces, box.origin, speed.region ?? CELL, (list) => rectsOf(regionOf(list)).length <= MAX_TICKING);
 
   let done = 0;
   const started = Date.now();
-  for (const k of order) {
+  for (const list of batches) {
     if (job?.cancel) break;
-    const list = batches.get(k);
     const rects = list.map(pieceRect);
     const touched = union(rects);
-    const needBackup = [];
-    if (opts.backup)
-      for (let i = 0; i < nx; i++)
-        for (let j = 0; j < nz; j++) {
-          const c = cellRect(i, j);
-          if (!backedUp.has(`${i},${j}`) && intersects(c, touched)) needBackup.push([i, j, c]);
-        }
+    const needBackup = opts.backup ? cellsOfPieces(list).filter(([i, j]) => !backedUp.has(`${i},${j}`)) : [];
     const region = union([touched, ...needBackup.map((n) => n[2])]);
     report(`§e放置中 ${done}/${pieces.length}§r：載入區塊…`);
     const loaded = await ensureLoaded(dimension, region, Math.max(y0, dimension.heightRange.min));
     if (job?.cancel) break;
     if (!loaded) world.sendMessage('§c[建築放置台] 有區塊載入逾時，仍嘗試放置；若有缺塊可再放一次或用復原。');
 
-    for (const [i, j, c] of needBackup) {
+    for (const [n, [i, j, c]] of needBackup.entries()) {
+      if (n > 0) await sleep(speed.gap);
       try {
         const id = `placer_undo:${jobId}_${i}_${j}`;
         if (sm.get(id)) sm.delete(id);
@@ -493,11 +531,10 @@ async function placePieces(dimension, pieces, box, opts) {
     }
 
     const before = new Set(debrisIn(dimension, touched, y0, y1).map((e) => e.id));
-    const speed = opts.speed ?? SPEEDS[1];
     const placeAll = async (includeEntities) => {
       for (const [n, p] of list.entries()) {
         if (job?.cancel) return;
-        if (n > 0 && speed.gap > 0) await sleep(speed.gap);
+        if (n > 0) await sleep(speed.gap);
         try {
           sm.place(p.id, dimension, p.loc, { rotation: opts.rotation, mirror: opts.mirror, includeEntities });
         } catch (e) {
@@ -728,8 +765,15 @@ function installed(state) {
 function estimate(plan, state) {
   const sp = speedOf(state);
   const passes = state.twoPass ? 2 : 1;
-  const batches = Math.ceil(plan.size.x / CELL) * Math.ceil(plan.size.z / CELL);
-  const sec = (plan.pieces.length * passes * Math.max(sp.gap, 1)) / 20 + batches * (sp.load + sp.settle / 20 + (state.twoPass ? sp.pass / 20 : 0));
+  const batches = Math.ceil(plan.size.x / sp.region) * Math.ceil(plan.size.z / sp.region);
+  const cells = new Set();
+  if (state.backup)
+    for (const p of plan.pieces)
+      for (let x = Math.floor((p.loc.x - plan.origin.x) / CELL); x <= Math.floor((p.loc.x + p.size.x - 1 - plan.origin.x) / CELL); x++)
+        for (let z = Math.floor((p.loc.z - plan.origin.z) / CELL); z <= Math.floor((p.loc.z + p.size.z - 1 - plan.origin.z) / CELL); z++) cells.add(`${x},${z}`);
+  const backups = cells.size;
+  const placeSec = (plan.pieces.length * passes * sp.gap + backups * sp.gap) / 20 + plan.pieces.length * passes * 0.1; // 每次放置本身約 0.1 秒
+  const sec = placeSec + batches * (sp.load + (sp.settle + (state.twoPass ? sp.pass : 0)) / 20);
   return sec < 90 ? `約 ${Math.max(1, Math.round(sec))} 秒` : `約 ${Math.round(sec / 60)} 分鐘`;
 }
 
@@ -774,9 +818,7 @@ async function openMenu(player, block) {
   if (!state) {
     const pick = await pickBuilding(player);
     if (!pick) return;
-    const picked = layoutOf(pick);
-    const speed = picked && picked.pieces.length > 50 ? 2 : 1;
-    saveState(key, { ...pick, rot: 0, mirror: 0, dy: 0, speed, twoPass: true, backup: true });
+    saveState(key, { ...pick, rot: 0, mirror: 0, dy: 0, speed: 1, twoPass: true, backup: true });
     player.sendMessage('§a[建築放置台] 已顯示預覽框。§r綠點＝範圍、藍柱＝中心、火焰柱＝建築原本的西北角。再點一次放置台可確認放置或調整；空手蹲下點擊可快速旋轉 90°。');
     return;
   }
@@ -852,4 +894,4 @@ world.afterEvents.worldLoad.subscribe(() => {
 });
 
 // 給離線測試用（遊戲內不會用到）
-export const __test = { planOf, transforms, calibrate, assumedTransform, onRegister, registered, availablePacks, findPack, layoutOf };
+export const __test = { planOf, transforms, calibrate, assumedTransform, onRegister, registered, availablePacks, findPack, layoutOf, splitBatches, rectsOf, estimate, SPEEDS };
