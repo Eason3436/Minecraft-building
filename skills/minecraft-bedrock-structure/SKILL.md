@@ -113,6 +113,7 @@ python <skill>/scripts/package_structure.py --structure <work/…/本次ID.mcstr
 ```
 
 - 打包器處理單一結構；合集或分件時在 work 複製並擴充它，讓同一個 mcpack 含多個各自驗證過的 mcstructure，仍只交一個包、一份含偏移與載入順序的說明、兩張整組渲染圖。不逐件交多個包，不略過尺寸驗證。
-- `manifest.json` 在包根，header/modules UUID 各自合法且不同，`modules.type=data`，結構路徑 `structures/<namespace>/<id>.mcstructure`，載入名 `<namespace>:<id>`；不多包一層資料夾。同一包更新保留 UUID 並加版本，新包用新 UUID。
+- `manifest.json` 在包根，header/modules UUID 各自合法且不同，`modules` 含 `type=data`（執行報到後另有一個 `type=script`），結構路徑 `structures/<namespace>/<id>.mcstructure`，載入名 `<namespace>:<id>`；不多包一層資料夾。同一包更新保留 UUID 並加版本，新包用新 UUID。
 - 說明檔寫：尺寸（寬深高與 X/Y/Z）、特色、匯入與啟用行為包、`/give @s structure_block`、切載入模式、完整 ID、`/structure load` 範例、空間與原點與面向、空氣覆蓋規則、測試狀態；多分件寫載入順序與偏移；有參考圖寫「復刻辨識特徵、已簡化之處」。讓不懂 db 的人也能完成。
+- **建築放置台報到**：交付目錄、說明檔與 function 都定案後（拼接表要寫在 function 的 `structure load <id> ~x ~y ~z` 裡，放置台才讀得到），執行 `py -3 tools/building_placer/register_pack.py <交付目錄>/<建築名稱>.mcpack`。它會在包內加 `scripts/placer_register.js`、script 模組與 `@minecraft/server` 2.0.0 依賴，並把 header 版本最後一碼 +1；玩家啟用這個包後，「建築放置台」選單就會自動列出這座建築。之後若重跑 package_structure.py，要再執行一次。接著跑 `py -3 tools/building_placer/build.py` 更新放置台內建清單與縮圖。說明檔要加一行「可用建築放置台放置」。
 - 最後檢查 ZIP CRC、manifest、內嵌結構位元組、路徑與 identifier 一致，交付目錄恰好四個檔案，兩張 PNG 可解碼且對應最終建築。回覆四個可點擊的絕對路徑、整體圖預覽、最短載入提示，並更新任務書進度為完成。

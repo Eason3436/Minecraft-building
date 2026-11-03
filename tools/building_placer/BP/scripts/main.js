@@ -24,6 +24,14 @@ const ROT_LABELS = ['0°（原始方向）', '90°', '180°', '270°'];
 const MIRRORS = [StructureMirrorAxis.None, StructureMirrorAxis.X, StructureMirrorAxis.Z];
 const MIRROR_LABELS = ['不鏡像', '鏡像 X 軸', '鏡像 Z 軸'];
 
+// 放置速度：gap＝每塊之間等幾 tick、pass＝兩次放置之間、settle＝每批放完等多久再清掉落物
+const SPEEDS = [
+  { label: '快（小建築）', gap: 0, pass: 2, settle: 4, load: 0.5 },
+  { label: '標準', gap: 5, pass: 5, settle: 6, load: 1 },
+  { label: '穩定（大建築，最不容易卡頓）', gap: 20, pass: 20, settle: 20, load: 2 },
+];
+const speedOf = (state) => SPEEDS[state?.speed ?? 1] ?? SPEEDS[1];
+
 const sleep = (ticks) => new Promise((r) => system.runTimeout(r, Math.max(1, ticks)));
 
 // ───────────── 放置台狀態（存在世界動態屬性，重開世界還在） ─────────────
@@ -64,12 +72,80 @@ function saveState(key, state) {
 }
 
 // state = { packName, layout } 或 { custom: 'ns:id', size: [x,y,z] }，加上 rot, mirror, dy, twoPass, backup
+// ───────────── 建築登記簿：內建清單＋建築包報到 ─────────────
+// 內建清單是打包放置台時寫入的；建築包若含 placer_register.js，世界載入後會用
+// scriptevent「placer:register」把自己的名稱與拼接表傳過來，選單就會自動出現。
+
+const registered = new Map(); // 名稱 -> { name, layouts, icon? }
+const partial = new Map(); // 名稱 -> { n, parts[] }
+const DEFAULT_ICON = 'textures/placer_icons/default';
+
+function onRegister(message) {
+  const m = /^(\d+)\|(\d+)\|(\d+)\|/.exec(message);
+  if (!m) return;
+  const [head, i, n, len] = [m[0], +m[1], +m[2], +m[3]];
+  const rest = message.slice(head.length);
+  const name = rest.slice(0, len);
+  const chunk = rest.slice(len);
+  let buf = partial.get(name);
+  if (!buf || buf.n !== n) {
+    buf = { n, parts: new Array(n) };
+    partial.set(name, buf);
+  }
+  buf.parts[i] = chunk;
+  if (buf.parts.filter((x) => x !== undefined).length < n) return;
+  partial.delete(name);
+  try {
+    const entry = JSON.parse(buf.parts.join(''));
+    if (entry?.name === name && Array.isArray(entry.layouts) && entry.layouts.length) registered.set(name, entry);
+  } catch (e) {
+    console.warn(`[建築放置台] 「${name}」報到資料損壞：${e}`);
+  }
+}
+
+function discover() {
+  try {
+    system.sendScriptEvent('placer:discover', '');
+  } catch {}
+}
+
+function findPack(name) {
+  const reg = registered.get(name);
+  const builtin = CATALOG.find((p) => p.name === name);
+  if (reg) return { ...reg, icon: reg.icon ?? builtin?.icon ?? DEFAULT_ICON, source: 'pack' };
+  return builtin && { ...builtin, source: 'builtin' };
+}
+
+function structureExists(id) {
+  try {
+    return !!world.structureManager.get(id);
+  } catch {
+    return false;
+  }
+}
+
+/** 列出可選的建築；回傳 { list, all }，all=true 表示偵測不到任何已啟用的建築而改列全部。 */
+function availablePacks(showAll) {
+  const merged = [];
+  const seen = new Set();
+  for (const p of CATALOG) {
+    const entry = findPack(p.name);
+    const ok = entry.source === 'pack' || structureExists(p.layouts[0].pieces[0][0]);
+    merged.push({ ...entry, installed: ok });
+    seen.add(p.name);
+  }
+  for (const [name] of registered) if (!seen.has(name)) merged.push({ ...findPack(name), installed: true });
+  const on = merged.filter((p) => p.installed);
+  if (showAll || !on.length) return { list: merged, all: !on.length && !showAll };
+  return { list: on, all: false };
+}
+
 function layoutOf(state) {
   if (state.custom) {
     const [sx, sy, sz] = state.size;
     return { title: state.custom, name: '自訂結構', size: state.size, pieces: [[state.custom, 0, 0, 0, sx, sy, sz]] };
   }
-  const pack = CATALOG.find((p) => p.name === state.packName);
+  const pack = findPack(state.packName);
   const layout = pack?.layouts[state.layout];
   if (!layout) return undefined;
   const title = pack.layouts.length > 1 ? `${pack.name}｜${layout.name}` : pack.name;
@@ -417,8 +493,11 @@ async function placePieces(dimension, pieces, box, opts) {
     }
 
     const before = new Set(debrisIn(dimension, touched, y0, y1).map((e) => e.id));
-    const placeAll = (includeEntities) => {
-      for (const p of list) {
+    const speed = opts.speed ?? SPEEDS[1];
+    const placeAll = async (includeEntities) => {
+      for (const [n, p] of list.entries()) {
+        if (job?.cancel) return;
+        if (n > 0 && speed.gap > 0) await sleep(speed.gap);
         try {
           sm.place(p.id, dimension, p.loc, { rotation: opts.rotation, mirror: opts.mirror, includeEntities });
         } catch (e) {
@@ -426,13 +505,13 @@ async function placePieces(dimension, pieces, box, opts) {
         }
       }
     };
-    placeAll(true);
+    await placeAll(true);
     if (opts.twoPass) {
       // 第二次放置時支撐方塊已經在了，燈籠、火把、沙子等不會再掉
-      await sleep(2);
-      placeAll(false);
+      await sleep(speed.pass);
+      await placeAll(false);
     }
-    await sleep(4);
+    await sleep(speed.settle);
     for (const e of debrisIn(dimension, touched, y0, y1)) {
       if (!before.has(e.id)) {
         try {
@@ -487,6 +566,7 @@ async function startPlacement(player, key, state) {
       rotation: ROTATIONS[state.rot],
       mirror: MIRRORS[state.mirror],
       twoPass: state.twoPass,
+      speed: speedOf(state),
       backup: state.backup,
       title: plan.layout.title,
       player,
@@ -548,6 +628,7 @@ async function startUndo(player) {
       mirror: StructureMirrorAxis.None,
       twoPass: true,
       backup: false,
+      speed: SPEEDS[1],
       title: rec.title,
       player,
     });
@@ -570,17 +651,32 @@ function sizeText(s) {
   return `${s[0]}×${s[1]}×${s[2]}`;
 }
 
-async function pickBuilding(player) {
-  const form = new ActionFormData().title('建築放置台').body(`選一座建築（共 ${CATALOG.length} 座）。\n需要先在世界啟用該建築的行為包。`);
-  CATALOG.forEach((pack) => {
+async function pickBuilding(player, showAll = false) {
+  discover(); // 請建築包重新報到，等一下再列清單
+  await sleep(6);
+  const { list, all } = availablePacks(showAll);
+  const body = all
+    ? '§6偵測不到已啟用的建築包，先列出全部內建清單。§r\n選了沒啟用的建築會提醒你。'
+    : showAll
+      ? `全部 ${list.length} 座（§c紅字§r＝這個世界沒啟用）。`
+      : `這個世界已啟用 ${list.length} 座建築。`;
+  const form = new ActionFormData().title('建築放置台').body(body);
+  const actions = [];
+  for (const pack of list) {
     const sub = pack.layouts.length > 1 ? `${pack.layouts.length} 種版面` : sizeText(pack.layouts[0].size);
-    form.button(`${pack.name}\n§8${sub}`, pack.icon);
-  });
+    form.button(`${pack.installed ? '' : '§c'}${pack.name}\n§8${sub}`, pack.icon);
+    actions.push(pack);
+  }
+  const canShowAll = !showAll && !all;
+  if (canShowAll) form.button('顯示全部清單\n§8包含這個世界沒啟用的', 'textures/placer_ui/swap');
   form.button('手動輸入結構 ID\n§8其他行為包的結構', 'textures/placer_ui/edit');
   const res = await form.show(player);
   if (res.canceled || res.selection === undefined) return undefined;
-  if (res.selection === CATALOG.length) return pickCustom(player);
-  const pack = CATALOG[res.selection];
+  const pack = actions[res.selection];
+  if (!pack) {
+    if (canShowAll && res.selection === actions.length) return pickBuilding(player, true);
+    return pickCustom(player);
+  }
   if (pack.layouts.length === 1) return { packName: pack.name, layout: 0 };
   const sub = new ActionFormData().title(pack.name).body('選擇要放的版面：');
   pack.layouts.forEach((l) => sub.button(`${l.name}\n§8${sizeText(l.size)}・${l.pieces.length} 塊`, pack.icon));
@@ -608,23 +704,33 @@ async function editSettings(player, key, state) {
     .dropdown('旋轉', ROT_LABELS, { defaultValueIndex: state.rot })
     .dropdown('鏡像', MIRROR_LABELS, { defaultValueIndex: state.mirror })
     .slider('高度偏移（0＝建築底層與放置台同高）', -64, 64, { defaultValue: state.dy, valueStep: 1 })
+    .dropdown('放置速度', SPEEDS.map((s) => s.label), { defaultValueIndex: state.speed ?? 1 })
     .toggle('防掉落：放兩次，避免燈籠、火把、沙子掉落', { defaultValue: state.twoPass })
     .toggle('建立復原備份（大型建築會佔較多存檔空間）', { defaultValue: state.backup })
     .submitButton('套用');
   const res = await form.show(player);
   if (res.canceled || !res.formValues) return;
-  const [rot, mirror, dy, twoPass, backup] = res.formValues;
-  saveState(key, { ...state, rot: Number(rot), mirror: Number(mirror), dy: Number(dy), twoPass: !!twoPass, backup: !!backup });
+  const [rot, mirror, dy, speed, twoPass, backup] = res.formValues;
+  saveState(key, { ...state, rot: Number(rot), mirror: Number(mirror), dy: Number(dy), speed: Number(speed), twoPass: !!twoPass, backup: !!backup });
 }
 
 function installed(state) {
   const layout = layoutOf(state);
   if (!layout) return false;
+  if (!state.custom && findPack(state.packName)?.source === 'pack') return true; // 有報到就一定已啟用
   try {
     return !!world.structureManager.get(layout.pieces[0][0]);
   } catch {
     return true; // 無法確認時不阻擋
   }
+}
+
+function estimate(plan, state) {
+  const sp = speedOf(state);
+  const passes = state.twoPass ? 2 : 1;
+  const batches = Math.ceil(plan.size.x / CELL) * Math.ceil(plan.size.z / CELL);
+  const sec = (plan.pieces.length * passes * Math.max(sp.gap, 1)) / 20 + batches * (sp.load + sp.settle / 20 + (state.twoPass ? sp.pass / 20 : 0));
+  return sec < 90 ? `約 ${Math.max(1, Math.round(sec))} 秒` : `約 ${Math.round(sec / 60)} 分鐘`;
 }
 
 async function confirmPlace(player, key, state) {
@@ -643,6 +749,7 @@ async function confirmPlace(player, key, state) {
       `${plan.layout.title}\n` +
         `範圍：(${plan.origin.x}, ${plan.origin.y}, ${plan.origin.z}) ～ (${plan.max.x}, ${plan.max.y}, ${plan.max.z})\n` +
         `尺寸：${plan.size.x}×${plan.size.y}×${plan.size.z}，共 ${plan.pieces.length} 塊\n` +
+        `速度：${speedOf(state).label}　預估 ${estimate(plan, state)}\n` +
         `防掉落：${state.twoPass ? '開' : '關'}　復原備份：${state.backup ? '開' : '關'}\n\n` +
         `§c範圍內原有的方塊會被覆蓋。${big ? '\n這座很大，可能要放好幾分鐘，期間請不要關閉世界。' : ''}`,
     )
@@ -667,7 +774,9 @@ async function openMenu(player, block) {
   if (!state) {
     const pick = await pickBuilding(player);
     if (!pick) return;
-    saveState(key, { ...pick, rot: 0, mirror: 0, dy: 0, twoPass: true, backup: true });
+    const picked = layoutOf(pick);
+    const speed = picked && picked.pieces.length > 50 ? 2 : 1;
+    saveState(key, { ...pick, rot: 0, mirror: 0, dy: 0, speed, twoPass: true, backup: true });
     player.sendMessage('§a[建築放置台] 已顯示預覽框。§r綠點＝範圍、藍柱＝中心、火焰柱＝建築原本的西北角。再點一次放置台可確認放置或調整；空手蹲下點擊可快速旋轉 90°。');
     return;
   }
@@ -684,6 +793,7 @@ async function openMenu(player, block) {
     .body(
       `尺寸 ${plan.size.x}×${plan.size.y}×${plan.size.z}，${plan.pieces.length} 塊\n` +
         `旋轉 ${ROT_LABELS[state.rot]}　${MIRROR_LABELS[state.mirror]}　高度 ${state.dy >= 0 ? '+' : ''}${state.dy}\n` +
+        `速度 ${speedOf(state).label}\n` +
         (ok ? '' : '§c找不到這個結構，請確認已啟用該建築的行為包。§r\n') +
         (job ? '§6目前有放置作業進行中。' : ''),
     );
@@ -726,8 +836,13 @@ system.beforeEvents.startup.subscribe(({ blockComponentRegistry }) => {
   });
 });
 
+system.afterEvents.scriptEventReceive.subscribe((e) => {
+  if (e.id === 'placer:register') onRegister(e.message);
+});
+
 world.afterEvents.worldLoad.subscribe(() => {
   loadStates();
+  system.runTimeout(discover, 20);
   // 上次沒跑完的作業可能留下 tickingarea
   for (const d of ['overworld', 'nether', 'the_end']) {
     try {
@@ -737,4 +852,4 @@ world.afterEvents.worldLoad.subscribe(() => {
 });
 
 // 給離線測試用（遊戲內不會用到）
-export const __test = { planOf, transforms, calibrate, assumedTransform };
+export const __test = { planOf, transforms, calibrate, assumedTransform, onRegister, registered, availablePacks, findPack, layoutOf };
