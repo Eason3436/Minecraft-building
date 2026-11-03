@@ -1,0 +1,25 @@
+{
+  "format_version": 2,
+  "header": {
+    "name": "建築放置台",
+    "description": "放一個建築放置台，點它用圖形選單選建築，粒子框預覽範圍後以方塊為中心自動放置（防燈籠掉落、可復原）。",
+    "uuid": "88f5c995-93e4-4aa3-9a9a-8f2686a3b812",
+    "version": [1, 0, 0],
+    "min_engine_version": [1, 21, 90]
+  },
+  "modules": [
+    { "type": "data", "uuid": "b4772d60-c885-464a-b735-62450344bc7c", "version": [1, 0, 0] },
+    {
+      "type": "script",
+      "language": "javascript",
+      "entry": "scripts/main.js",
+      "uuid": "0732a788-7608-47b9-bcc6-e69532530f11",
+      "version": [1, 0, 0]
+    }
+  ],
+  "dependencies": [
+    { "module_name": "@minecraft/server", "version": "2.0.0" },
+    { "module_name": "@minecraft/server-ui", "version": "2.0.0" },
+    { "uuid": "c364e6da-68c9-4697-8ee7-605dca9d4ff9", "version": [1, 0, 0] }
+  ]
+}

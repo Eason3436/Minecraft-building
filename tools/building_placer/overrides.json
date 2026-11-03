@@ -1,0 +1,34 @@
+{
+  "labels": {
+    "build": "整座建築",
+    "fleet": "整支艦隊",
+    "port_build": "只有港口",
+    "port_all": "港口＋三艘艦",
+    "underground": "地下層",
+    "straight": "直線",
+    "curve": "彎道",
+    "central": "中央玻璃大廳站",
+    "suburban": "郊區木屋站",
+    "row_0": "第 1 排",
+    "row_1": "第 2 排",
+    "row_2": "第 3 排",
+    "row_3": "第 4 排",
+    "country": "鄉村車站",
+    "jade": "翠玉車站",
+    "modern": "現代車站",
+    "tunnel": "隧道",
+    "bridge": "河橋",
+    "ground": "地面鐵路",
+    "elevated": "微高架"
+  },
+  "ids": {
+    "qingxi_260919:tunnel": "晴石拱門隧道",
+    "qingxi_260919:bridge": "青鋼雙跨河橋",
+    "qingxi_260919:ground": "晴溪地面鐵路",
+    "qingxi_260919:elevated": "晴溪微高架"
+  },
+  "packs": {},
+  "skip": [
+    "分區成果"
+  ]
+}

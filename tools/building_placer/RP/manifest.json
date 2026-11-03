@@ -1,0 +1,16 @@
+{
+  "format_version": 2,
+  "header": {
+    "name": "建築放置台 資源",
+    "description": "建築放置台的方塊貼圖、選單縮圖與中文名稱。",
+    "uuid": "c364e6da-68c9-4697-8ee7-605dca9d4ff9",
+    "version": [1, 0, 0],
+    "min_engine_version": [1, 21, 90]
+  },
+  "modules": [
+    { "type": "resources", "uuid": "3b3a7b6d-09fd-4940-b673-336b40d3d937", "version": [1, 0, 0] }
+  ],
+  "dependencies": [
+    { "uuid": "88f5c995-93e4-4aa3-9a9a-8f2686a3b812", "version": [1, 0, 0] }
+  ]
+}

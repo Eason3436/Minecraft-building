@@ -7,6 +7,7 @@
 - `site/` — 3D 建築展示網站（three.js，可旋轉、剖切看室內、直接下載 .mcpack 與使用說明）；連 GitHub 部署到 Vercel，push 後自動更新，說明見 `site/README.md`
 - `structures/` — 生成的建築檔（`.mcpack`）、渲染圖與繁體中文使用說明，一個建築一個資料夾
 - `docs/` — 建築需求、風格與尺寸的筆記
+- `addons/建築放置台/` — **建築放置台**附加包（`.mcaddon`＋使用說明）：放一個方塊、點它用圖形選單選建築，粒子框預覽範圍後以方塊為中心自動放置；多塊拼接建築自動依拼接表放好，支援旋轉／鏡像、防燈籠火把掉落（放兩次）、自動載入區塊與一鍵復原。原始碼與打包腳本在 `tools/building_placer/`
 - `skills/minecraft-bedrock-structure/` — 建築生成 skill 的原始碼（任務書拆解、方塊目錄、風格調色盤、細節技法、圖片復刻流程）；`skills/minecraft-bedrock-structure.skill` 是打包好的安裝檔
 
 ## 建築清單
@@ -131,6 +132,7 @@
 1. 在對話中描述要蓋的建築（類型、風格、尺寸）
 2. AI 生成 `.mcpack` 與使用說明 `.txt`
 3. 把成品放進 `structures/<建築名稱>/` 並 commit
+4. 執行 `py -3 tools/building_placer/build.py` 更新建築放置台的建築清單與縮圖（會讀取所有 `structures/**/*.mcpack` 的 function 拼接表）
 
 ### 山科川畔町家街
 
