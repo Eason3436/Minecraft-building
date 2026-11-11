@@ -31,9 +31,18 @@ def prepare(W, T):
     for (x, z) in cells:                               # 穿越環線處：暫時把高度視為地面 22，做出橋下箱涵
         for dx in (-1, 0, 1):
             c = (x + dx, z)
-            if T['cor2'][c] and c not in saved:
+            if T['cor'][x, z] and c not in saved:          # 只處理專用線本身落在環線走廊裡的那幾排
                 saved[c] = int(h[c]); h[c] = 22
+    # 進箱涵前 8 排先降到地面 22：把這幾排的高度也暫時壓低，坡道就會在走廊之前做完（變成一小段路塹）
+    zc = sorted(c[1] for c in saved)
+    approach = {}
+    for z in list(range(zc[0] - 8, zc[0])) + list(range(zc[-1] + 1, zc[-1] + 3)):
+        for dx in (-1, 0, 1):
+            c = (GX + dx, z)
+            if c not in saved and h[c] > 22: approach[c] = int(h[c]); h[c] = 22
     path = town.stair_path(W, T, cells, None, 1, rail=True)
+    for c, v in approach.items():
+        if c[0] != GX: h[c] = v
     for c, v in saved.items():
         h[c] = v
         for y in range(23, 27): a[c[0], y, c[1]] = 0

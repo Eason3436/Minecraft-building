@@ -1,6 +1,6 @@
 # 風格調色盤
 
-每個風格給一組「主材（3 種漸層）／次材／點綴／屋頂／窗／門／燈／地面／景觀」。這不是硬性規定，而是讓你起手時就有 12–25 種方塊可用，並在任務書裡寫成本次的調色盤。挑好後用 `block_catalog.py states` 核對每個 ID 與 state 都存在。
+每個風格給一組「主材（3 種漸層）／次材／點綴／屋頂／窗／門／燈／地面／景觀」。這不是硬性規定，而是讓你起手時就有一組可用的方塊，並在任務書裡寫成本次的調色盤。自己配得出更貼合需求的組合就用自己的；混搭風格、清單上沒有的風格都可以。挑好後用 `block_catalog.py states` 核對每個 ID 與 state 都存在。
 
 方塊 ID 省略 `minecraft:`；`<木>` 表示可替換木種。所有 ID 都經 v1.26.50 官方表核對；命名例外見 `block-catalog.md` 第 1 節。
 
@@ -160,7 +160,7 @@
 - 屋頂：`spruce_stairs` + `spruce_slab`、`mud_brick_slab`、`smooth_quartz_slab`、`waxed_oxidized_cut_copper_slab`
 - 窗：`glass_pane`、`spruce_trapdoor`
 - 燈：`sea_lantern`（嵌月台邊）、`lantern` + `iron_chain`、`dark_oak_fence` 燈柱 + `spruce_slab`
-- 軌道床：`gravel`、`andesite`、`redstone_block`（動力）、`rail` / `golden_rail`
+- 軌道床：`gravel`、`andesite`、`redstone_block`（動力）、`rail` / `golden_rail`；動力軌要放多密、怎麼供電見 `railway.md`
 - 景觀：`azalea_leaves`、`spruce_leaves`、`brick_block` 花台、`moss_block`
 
 ---

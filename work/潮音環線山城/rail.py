@@ -29,7 +29,7 @@ def _dil(m):
     return n
 
 
-def route(jog_every=11, jog=3):
+def route(jog_every=3, jog=3):
     """折點之間：直線照走；斜線用之字線，每隔 jog_every 步插入一小段 3 格直線（放動力軌補速），
     x 向與 z 向輪流插，整體仍維持 45°。"""
     cells = []; seg = []
@@ -48,7 +48,7 @@ def route(jog_every=11, jog=3):
             if rx == 0 or rz == 0:               # 只剩單軸：直走到底
                 cells.append((x, z)); seg.append(i); x += sx if rx else 0; z += sz if rz else 0
                 continue
-            if run >= jog_every and min(rx, rz) > jog + 4 + (jog if turn % 2 == 0 else 0):
+            if run >= jog_every and (rx if turn % 2 == 0 else rz) >= jog and min(rx, rz) >= 1:
                 for _ in range(jog):
                     cells.append((x, z)); seg.append(i)
                     if turn % 2 == 0: x += sx
@@ -306,7 +306,7 @@ def build(W, T):
             near_ramp = any(ys[(i + k) % m] != y for k in range(-4, 5))
             edge_of_diag = st and (dirs[(i + 1) % m] not in (0, 1) or dirs[i - 1] not in (0, 1) or dirs[(i + 2) % m] not in (0, 1) or dirs[i - 2] not in (0, 1))
             run = run + 1 if st else 0
-            if st and (near_ramp or edge_of_diag or run % 10 in (4, 5)):
+            if st and (near_ramp or edge_of_diag or run % 6 in (1, 2)):      # 每 6 格 2 格動力軌（技能 railway.md 第 1 節）
                 a[x, y, z] = B('golden_rail', rail_direction=d, rail_data_bit=True)
                 a[x, y - 1, z] = red; powered += 1
             else:

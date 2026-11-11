@@ -52,7 +52,7 @@ def layout(W, T):
     town.pave_rect(W, T, 86, 181, 104, 195, level=22)        # 市場廣場
     # 東城街道（南北向）＋ 接往下城的斜坡
     town.pave_rect(W, T, 206, 84, 207, 172, level=28)
-    LM.main_station(W, T); LM.funicular(W, T); LM.church_plaza(W, T); LM.market(W, T)
+    LM.main_station(W, T); LM.church_plaza(W, T); LM.funicular(W, T); LM.market(W, T)      # 纜索鐵道要在廣場鋪面之後，否則紅石塊會被蓋掉
     LM.harbor(W, T); LM.lighthouse(W, T); LM.depot(W, T); LM.underground_station(W, T); LM.gold_market(W, T)
     print('windmill', LM.windmill(W, T))
     print('mine', MN.build(W, T))
@@ -65,7 +65,7 @@ def layout(W, T):
         lots = town.find_lots(T, L, rng, tol=0, gap_p=0.2)
         lots.sort(key=lambda l: -l[2] * l[3])
         for j, (x0, z0, fw, fd, d) in enumerate(lots):
-            if x0 < 70 and z0 < 112: continue          # 西北角孤立台地不蓋屋
+            if x0 < 70 and z0 < 124: continue          # 西北角孤立台地不蓋屋
             low = L == 22
             floors = rng.choice([3, 3, 4]) if low else rng.choice([2, 2, 3, 3]) if L < 52 else rng.choice([2, 2, 3])
             if x0 > 196: floors = 2
@@ -77,11 +77,11 @@ def layout(W, T):
             houses.append(town.house(W, T, x0, z0, fw, fd, d, L, floors, rng, shop=low and rng.random() < 0.6, kind=kind))
     for L in town.LEVELS:           # 第二輪：補小屋
         for (x0, z0, fw, fd, d) in town.find_lots(T, L, rng, wide=(5, 6), deep=(5,), gap_p=0.2, need=0.5):
-            if x0 < 70 and z0 < 112: continue
+            if x0 < 70 and z0 < 124: continue
             houses.append(town.house(W, T, x0, z0, fw, fd, d, L, rng.choice([2, 2, 3]) if L > 22 else 3, rng))
     for L in town.LEVELS:           # 第三輪：臨街面較窄的畸零地
         for (x0, z0, fw, fd, d) in town.find_lots(T, L, rng, wide=(7, 6, 5), deep=(6, 5), gap_p=0.1, need=0.34):
-            if x0 < 70 and z0 < 112: continue
+            if x0 < 70 and z0 < 124: continue
             houses.append(town.house(W, T, x0, z0, fw, fd, d, L, rng.choice([2, 3]), rng))
     T['houses'] = houses
     print('houses', len(houses))

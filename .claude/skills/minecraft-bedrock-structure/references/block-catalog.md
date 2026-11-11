@@ -146,7 +146,7 @@ python scripts/block_catalog.py --metadata <mojang-blocks.json> material <字根
 - 洞穴/奇幻：`dripstone_block`、`calcite`、`amethyst_block`、`budding_amethyst`、`amethyst_cluster`、`sculk`、`sculk_vein`、`chorus_plant`、`chorus_flower`、`creaking_heart`、`mushroom_stem`、`brown_mushroom_block`（`huge_mushroom_bits`：14 全帽面、15 全莖面、0 全孔面）、`shroomlight`、`warped_wart_block`
 
 ## 9. 功能、紅石與軌道
-- 軌道：`rail`、`golden_rail`（`rail_data_bit` 通電）、`detector_rail`、`activator_rail`；`rail_direction`：0 南北、1 東西、2 上坡向東、3 上坡向西、4 上坡向北、5 上坡向南、6–9 轉彎（僅 `rail`）
+- 軌道：`rail`、`golden_rail`（`rail_data_bit` 通電）、`detector_rail`、`activator_rail`；`rail_direction`：0 南北、1 東西、2 上坡向東、3 上坡向西、4 上坡向北、5 上坡向南、6–9 轉彎（僅 `rail`）；動力軌密度、供電與坡道規則見 `railway.md`
 - 容器與傳輸：`chest`、`barrel`、`hopper`（`facing_direction`）、`dropper`、`dispenser`、`copper_chest`
 - 紅石：`redstone_block`、`redstone_wire`、`unpowered_repeater`、`unpowered_comparator`、`redstone_torch`、`lever`、`observer`、`piston`、`sticky_piston`、`daylight_detector`、`target`、`tripwire_hook`、`sculk_sensor`、`calibrated_sculk_sensor`、`copper_bulb`
 - 特殊：`structure_void`（載入時保留原方塊）、`barrier`（隱形牆）、`air`（清空）
