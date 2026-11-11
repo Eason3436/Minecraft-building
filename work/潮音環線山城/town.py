@@ -37,43 +37,97 @@ def paving(W):
 
 
 # ---------------------------------------------------------------- 石階
-def stair_path(W, T, cells, d, width, rail=False):
-    """cells: 中心線，d: 前進方向。高度取「每步高差 ≤1」的最低包絡，蓋出階梯量體並回傳 [(cell,y)]。"""
+def stair_path(W, T, cells, d=None, width=2, rail=False):
+    """cells: 中心線（可轉彎，相鄰格 4 連通）。高度取「每步高差 ≤1」的最低包絡，蓋出階梯量體並回傳 [(cell,y)]。"""
     h = T['h']; a = W.a; B = W.B
-    lx, lz = DIRS[LEFT[d]]
+    n = len(cells)
+    step = {(1, 0): 'e', (-1, 0): 'w', (0, 1): 's', (0, -1): 'n'}
+    dirs = []
+    for i in range(n):
+        p, q = (cells[i - 1], cells[i]) if i > 0 else (cells[0], cells[1])
+        dirs.append(step[(q[0] - p[0], q[1] - p[1])])
     t = [int(h[x, z]) for x, z in cells]
     y = t[:]
-    for _ in range(2):
-        for i in range(len(y) - 2, -1, -1): y[i] = max(y[i], y[i + 1] - 1)
-        for i in range(1, len(y)): y[i] = max(y[i], y[i - 1] - 1)
+    for _ in range(60):
+        before = y[:]
+        for i in range(n - 2, -1, -1): y[i] = max(y[i], y[i + 1] - 1)
+        for i in range(1, n): y[i] = max(y[i], y[i - 1] - 1)
+        for i in range(1, n - 1):               # 轉角格與前後一格同高（轉角不放樓梯）
+            if dirs[i] != dirs[i + 1]:
+                m = max(y[i - 1], y[i], y[i + 1]); y[i - 1] = y[i] = y[i + 1] = m
+        if y == before: break
+    assert all(abs(y[i] - y[i - 1]) <= 1 for i in range(1, n))
     pave = paving(W)
     sb = W.mix((B('stone_bricks'), 70), (B('mossy_stone_bricks'), 15), (B('cracked_stone_bricks'), 15))
     wall = B('stone_brick_wall')
     half = width // 2
     offs = list(range(-half, width - half))
-    n = len(cells)
+    surf = {}                                   # (x,z) -> (y, 樓梯朝向或 None)
     for i, (cx, cz) in enumerate(cells):
         up = i > 0 and y[i] > y[i - 1]
         down = i + 1 < n and y[i] > y[i + 1] and not up
-        for o in offs + [offs[0] - 1, offs[-1] + 1]:
-            x, z = cx + lx * o, cz + lz * o
-            if not (0 <= x < SX and 0 <= z < SZ): continue
-            border = o in (offs[0] - 1, offs[-1] + 1)
-            g = int(h[x, z])
-            if border:
-                if y[i] > g and not T['cor'][x, z]:                       # 側牆
-                    for yy in range(g + 1, y[i] + 1): a[x, yy, z] = sb()
-                    a[x, y[i] + 1, z] = wall
-                    h[x, z] = y[i]; T['reserved'][x, z] = True
-                continue
-            for yy in range(min(g, y[i]) - 1, y[i]): a[x, yy, z] = sb()
-            a[x, y[i] + 1:y[i] + 5, z] = 0
-            if (up or down) and not rail:
-                a[x, y[i], z] = W.stairs('stone_brick_stairs' if (i + o) % 5 else 'mossy_stone_brick_stairs', d if up else OPP[d])
-            else:
-                a[x, y[i], z] = pave() if not rail else sb()
-            h[x, z] = y[i]; T['reserved'][x, z] = True; T['street'][x, z] = True
+        dl = [dirs[i]] + ([dirs[i + 1]] if i + 1 < n and dirs[i + 1] != dirs[i] else [])
+        for dd in dl:
+            lx, lz = DIRS[LEFT[dd]]
+            for o in offs:
+                c = (cx + lx * o, cz + lz * o)
+                asc = (dirs[i] if up else OPP[dirs[i + 1]]) if (up or down) and len(dl) == 1 else None
+                if c not in surf or surf[c][0] < y[i]: surf[c] = (y[i], asc)
+    for (x, z), (yy, asc) in surf.items():
+        if not (1 <= x < SX - 1 and 1 <= z < SZ - 1): continue
+        g = int(h[x, z])
+        for k in range(min(g, yy) - 1, yy): a[x, k, z] = sb()
+        a[x, yy + 1:yy + 5, z] = 0
+        if asc and not rail:
+            a[x, yy, z] = W.stairs('stone_brick_stairs' if (x + z) % 5 else 'mossy_stone_brick_stairs', asc)
+        else:
+            a[x, yy, z] = pave() if not rail else sb()
+        h[x, z] = yy; T['reserved'][x, z] = True; T['street'][x, z] = True
+    for (x, z), (yy, asc) in surf.items():      # 側牆
+        for dx, dz in DIRS.values():
+            c = (x + dx, z + dz)
+            if c in surf or not (1 <= c[0] < SX - 1 and 1 <= c[1] < SZ - 1) or T['cor'][c]: continue
+            g = int(h[c])
+            if yy > g:
+                for k in range(g + 1, yy + 1): a[c[0], k, c[1]] = sb()
+                a[c[0], yy + 1, c[1]] = wall
+                h[c] = yy; T['reserved'][c] = True
     return list(zip(cells, y))
+
+
+def bent_cells(T, x0, z0, d, top=58, shift=5, first='l', maxn=260, rise=4):
+    """曲折石階的中心線：沿 d 往上，每爬上一層台地就在平台上橫移 shift 格（左右交替）再繼續。"""
+    h = T['h']
+    dx, dz = DIRS[d]
+    side = LEFT[d] if first == 'l' else RIGHT[d]
+    x, z = x0, z0
+    cells = [(x, z)]; base = int(h[x, z]); hmax = base; off = 0
+    while len(cells) < maxn:
+        if int(h[x, z]) >= top: break
+        nx, nz = x + dx, z + dz
+        if not (4 <= nx < SX - 4 and 4 <= nz < SZ - 4): break
+        if T['cor2'][nx, nz] or T['sea'][nx, nz] or not T['inside'][nx, nz]: break
+        cur = int(h[nx, nz])
+        hmax = max(hmax, cur)
+        if cur < hmax - 2: break                     # 已經翻過最高點
+        if not T['town'][nx, nz]:
+            off += 1
+            if off > 3: break
+        else: off = 0
+        x, z = nx, nz; cells.append((x, z))
+        if cur >= base + rise and cur < top:      # 到了新的一層：前進 1 格再橫移
+            x, z = x + dx, z + dz; cells.append((x, z))
+            sx, sz = DIRS[side]
+            ok = all(abs(int(h[x + sx * k, z + sz * k]) - cur) <= 1 and not T['cor2'][x + sx * k, z + sz * k] and not T['sea'][x + sx * k, z + sz * k] for k in range(1, shift + 2))
+            if ok:
+                for k in range(shift):
+                    x, z = x + sx, z + sz; cells.append((x, z))
+                side = OPP[side]
+            base = cur
+    for _ in range(2):
+        if int(h[x, z]) >= top and not T['cor2'][x + dx, z + dz]:
+            x, z = x + dx, z + dz; cells.append((x, z))
+    return cells
 
 
 def line(x0, z0, d, n):
@@ -175,11 +229,12 @@ def roof_gable(F, w, d, y0, kind, axis='x', over=1):
     return top
 
 
-def house(W, T, x0, z0, fw, fd, front, base, floors, rng, shop=False, style=None):
+def house(W, T, x0, z0, fw, fd, front, base, floors, rng, shop=False, style=None, kind=None):
     """x0,z0＝世界座標最小角；fw＝面寬、fd＝進深（局部）；front＝門面朝向；base＝地面方塊 y。"""
     B = W.B
     F = Frame(W, x0, base + 1, z0, fw, fd, front)
     style = style or {}
+    if kind: shop = True
     color = style.get('color') or rng.choice(list(STUCCO))
     wm = W.mix(*[(B(n), p) for n, p in STUCCO[color]]); F._wm = wm
     roofk = style.get('roof') or rng.choices(list(ROOFS), [50, 22, 14, 14])[0]
@@ -243,7 +298,12 @@ def house(W, T, x0, z0, fw, fd, front, base, floors, rng, shop=False, style=None
             F.put(lx, 1, d - 1, pane); F.put(lx, 2, d - 1, pane)
         for lx in range(0, w):
             F.put(lx, 3, d, W.slab({'red_wool': 'mangrove_slab', 'blue_wool': 'warped_slab', 'yellow_wool': 'bamboo_slab', 'green_wool': 'warped_slab', 'orange_wool': 'acacia_slab'}.get(W.names[awn[0]], 'spruce_slab'), True) if lx % 2 == 0 else W.slab('birch_slab', True))
-        if w >= 6:
+        if kind:                                   # 招牌：門楣上的代表方塊＋吊燈
+            F.put(doorcol, 3, d, B(KIND_SIGN[kind])) if KIND_SIGN[kind] != 'barrel' else F.put(doorcol, 3, d, B('barrel', facing_direction=1))
+            F.put(doorcol, 4, d, B(KIND_SIGN[kind]) if kind in ('gold', 'bank') else W.slab('spruce_slab'))
+            if kind in ('gold', 'bank') and w >= 6:
+                F.put(w - 2, 0, d, B('raw_gold_block')); F.put(1 if doorcol != 1 else 2, 0, d, B('gold_block') if kind == 'bank' else B('chest', cardinal_direction=FULL[F.D('s')]))
+        elif w >= 6:
             F.put(w - 2, 0, d, B('barrel', facing_direction=1)); F.put(1 if doorcol != 1 else 2, 0, d, B(rng.choice(['composter', 'hay_block', 'barrel'])))
     # 陽台（法式）
     if floors >= 2 and rng.random() < 0.5 and len(cols) >= 2:
@@ -255,8 +315,8 @@ def house(W, T, x0, z0, fw, fd, front, base, floors, rng, shop=False, style=None
         for s in (c - 1, c + 1):
             if 0 <= s < w: F.put(s, y - 1, d, W.slab('smooth_stone_slab', True)); F.put(s, y, d, B('iron_bars'))
     # 屋頂
-    kind = style.get('rooftype') or rng.choices(['gable', 'gable_z', 'flat'], [62, 18, 20])[0]
-    if kind == 'flat':
+    rkind = style.get('rooftype') or rng.choices(['gable', 'gable_z', 'flat'], [62, 18, 20])[0]
+    if rkind == 'flat':
         for lx in range(w):
             for lz in range(d):
                 rim = lx in (0, w - 1) or lz in (0, d - 1)
@@ -275,9 +335,9 @@ def house(W, T, x0, z0, fw, fd, front, base, floors, rng, shop=False, style=None
             F.put(w // 2, Ht, d // 2, B('azalea_leaves'))
         top = Ht + 2
     else:
-        top = roof_gable(F, w, d, Ht, roofk, 'x' if kind == 'gable' else 'z')
+        top = roof_gable(F, w, d, Ht, roofk, 'x' if rkind == 'gable' else 'z')
     # 煙囪
-    if kind != 'flat' and rng.random() < 0.6:
+    if rkind != 'flat' and rng.random() < 0.6:
         cx, cz = (1, 1) if rng.random() < 0.5 else (w - 2, 1)
         for yy in range(Ht, top + 2): F.put(cx, yy, cz, B('brick_block'))
         F.put(cx, top + 2, cz, B('campfire', extinguished=False))
@@ -291,7 +351,9 @@ def house(W, T, x0, z0, fw, fd, front, base, floors, rng, shop=False, style=None
         if floors > 1:
             for yy in range(y, y + (4 if k < floors - 1 else 0)):
                 F.ladder(1, yy, 1, 's')
-        if k == 0:
+        if k == 0 and kind:
+            furnish_kind(F, w, d, kind, doorcol)
+        elif k == 0:
             F.facing(w - 2, y, 1, 'furnace' if not shop else 'smoker', 's')
             if w >= 6: F.put(w - 3, y, 1, B('crafting_table'))
             if w >= 7: F.put(w - 4, y, 1, B('barrel', facing_direction=1))
@@ -310,7 +372,7 @@ def house(W, T, x0, z0, fw, fd, front, base, floors, rng, shop=False, style=None
             for lx in range(2, w - 2):
                 for lz in range(2, d - 2):
                     F.put(lx, y, lz, B(('red_carpet', 'light_blue_carpet', 'yellow_carpet', 'green_carpet')[k % 4]), keep=True)
-    return dict(x0=x0, z0=z0, w=w, d=d, front=front, base=base, floors=floors, color=color, top=base + 1 + top)
+    return dict(x0=x0, z0=z0, w=w, d=d, front=front, base=base, floors=floors, color=color, top=base + 1 + top, kind=kind)
 
 
 # ---------------------------------------------------------------- 地塊搜尋
@@ -356,3 +418,70 @@ def find_lots(T, level, rng, wide=(6, 7, 8, 9, 7, 6, 5), deep=(7, 6, 5), gap_p=0
                 if placed: break
             if placed: break
     return lots
+
+
+KIND_NAME = {'gold': '金飾店', 'bank': '錢莊金庫', 'bakery': '麵包店', 'smith': '鐵匠舖', 'inn': '旅店酒館', 'clinic': '診所藥舖', 'school': '學堂圖書室',
+             'store': '雜貨店', 'fish': '魚舖', 'tailor': '裁縫店', 'post': '郵局', 'carpenter': '木工坊', 'butcher': '肉舖燻房', 'grocer': '蔬果店'}
+KIND_SIGN = {'gold': 'gold_block', 'bank': 'gold_block', 'bakery': 'hay_block', 'smith': 'polished_blackstone', 'inn': 'barrel', 'clinic': 'red_wool', 'school': 'bookshelf',
+             'store': 'chiseled_stone_bricks', 'fish': 'prismarine_bricks', 'tailor': 'pink_wool', 'post': 'blue_wool', 'carpenter': 'stripped_oak_log', 'butcher': 'red_nether_brick', 'grocer': 'melon_block'}
+KIND_BACK = {
+    'gold': ['gold', 'chest', 'raw', 'gold', 'chest', 'raw', 'gold'], 'bank': ['gold', 'gold', 'raw', 'gold', 'gold', 'raw', 'gold'],
+    'bakery': ['smoker', 'smoker', 'hay', 'barrel', 'craft', 'hay', 'barrel'], 'smith': ['blast', 'anvil', 'cauldron_lava', 'smith', 'grind', 'chest', 'blast'],
+    'inn': ['barrel', 'barrel', 'barrel', 'smoker', 'chest', 'barrel', 'barrel'], 'clinic': ['brew', 'cauldron', 'chest', 'book', 'brew', 'book', 'chest'],
+    'school': ['book', 'book', 'book', 'book', 'book', 'book', 'book'], 'store': ['chest', 'barrel', 'comp', 'chest', 'barrel', 'loom', 'chest'],
+    'fish': ['barrel', 'cauldron', 'kelp', 'barrel', 'kelp', 'cauldron', 'barrel'], 'tailor': ['loom', 'wool:red', 'wool:light_blue', 'loom', 'wool:yellow', 'chest', 'wool:pink'],
+    'post': ['chest', 'chest', 'carto', 'barrel', 'chest', 'chest', 'barrel'], 'carpenter': ['craft', 'stonecutter', 'fletch', 'planks', 'planks', 'chest', 'craft'],
+    'butcher': ['smoker', 'barrel', 'hay', 'smoker', 'comp', 'barrel', 'smoker'], 'grocer': ['melon', 'pumpkin', 'hay', 'comp', 'barrel', 'melon', 'pumpkin'],
+}
+KIND_TOP = {'gold': ['raw', None, 'gold', None, None, 'gold', 'raw'], 'bank': ['gold', 'raw', None, 'gold', 'raw', None, 'gold'], 'school': ['book'] * 7,
+            'tailor': [None, 'wool:white', None, None, 'wool:orange', None, None], 'grocer': [None, None, 'hay', None, None, None, None], 'store': [None, 'barrel', None, None, None, None, 'barrel'],
+            'carpenter': [None, None, None, 'planks', None, None, None], 'bakery': [None, None, 'hay', None, None, None, None]}
+
+
+def _item(F, lx, ly, lz, it):
+    W = F.W; B = W.B
+    if it is None: return
+    if it.startswith('wool:'): F.put(lx, ly, lz, B(it[5:] + '_wool')); return
+    simple = {'gold': 'gold_block', 'raw': 'raw_gold_block', 'hay': 'hay_block', 'craft': 'crafting_table', 'book': 'bookshelf', 'smith': 'smithing_table',
+              'carto': 'cartography_table', 'fletch': 'fletching_table', 'kelp': 'dried_kelp_block', 'melon': 'melon_block', 'planks': 'spruce_planks', 'comp': 'composter'}
+    if it in simple: F.put(lx, ly, lz, B(simple[it]))
+    elif it == 'chest': F.facing(lx, ly, lz, 'chest', 's')
+    elif it == 'barrel': F.put(lx, ly, lz, B('barrel', facing_direction=1))
+    elif it in ('smoker', 'blast', 'furnace'): F.facing(lx, ly, lz, {'smoker': 'smoker', 'blast': 'blast_furnace', 'furnace': 'furnace'}[it], 's')
+    elif it == 'anvil': F.facing(lx, ly, lz, 'anvil', 's')
+    elif it == 'stonecutter': F.facing(lx, ly, lz, 'stonecutter_block', 's')
+    elif it == 'pumpkin': F.facing(lx, ly, lz, 'carved_pumpkin', 's')
+    elif it == 'loom': F.put(lx, ly, lz, B('loom'))
+    elif it == 'grind': F.put(lx, ly, lz, B('grindstone', attachment='standing'))
+    elif it == 'brew': F.put(lx, ly, lz, B('spruce_planks')); F.put(lx, ly + 1, lz, B('brewing_stand'))
+    elif it == 'cauldron': F.put(lx, ly, lz, B('cauldron', fill_level=6, cauldron_liquid='water'))
+    elif it == 'cauldron_lava': F.put(lx, ly, lz, B('cauldron', fill_level=6, cauldron_liquid='lava'))
+    else: raise ValueError(it)
+
+
+def furnish_kind(F, w, d, kind, doorcol):
+    """店鋪一樓：後牆一排貨架／設備，進深夠再加櫃台與座位。梯子在 (1,*,1) 不佔用。"""
+    W = F.W; B = W.B
+    back = KIND_BACK[kind]; top = KIND_TOP.get(kind, [None] * 7)
+    for i, lx in enumerate(range(2, w - 1)):
+        _item(F, lx, 0, 1, back[i % 7])
+        if top[i % 7] and back[i % 7] not in ('brew', 'anvil', 'cauldron', 'cauldron_lava', 'grind'): _item(F, lx, 1, 1, top[i % 7])
+    if kind == 'bank':                              # 鐵柵金庫
+        for lx in range(2, w - 1):
+            for ly in range(0, 3):
+                if d >= 6: F.put(lx, ly, 2, B('iron_bars') if lx != w - 2 or ly == 2 else 0)
+    if d >= 7:                                      # 櫃台
+        for lx in range(2, w - 2):
+            if lx == doorcol: continue
+            F.put(lx, 0, d - 4, W.slab('smooth_quartz_slab' if kind in ('gold', 'bank', 'clinic') else 'spruce_slab', True))
+        if kind in ('gold', 'bank'): F.put(2 if doorcol != 2 else w - 3, 1, d - 4, B('gold_block'))
+        if kind == 'bakery': F.put(2 if doorcol != 2 else w - 3, 1, d - 4, B('cake'))
+    if kind in ('inn', 'school') and d >= 6:        # 座位
+        for lx in range(2, w - 2, 2):
+            if kind == 'inn':
+                F.put(lx, 0, d - 3, B('spruce_fence')); F.put(lx, 1, d - 3, B('brown_carpet'))
+            else:
+                F.stairs(lx, 0, d - 3, 'spruce_stairs', 's')
+        if kind == 'school': F.facing(w // 2, 0, 2, 'lectern', 's')
+    if kind == 'clinic' and d >= 6: F.bed(w - 2, 0, d - 3, 'n')
+    if kind == 'smith' and d >= 6: F.put(w - 2, 0, d - 3, B('iron_bars')); F.put(w - 2, 1, d - 3, B('iron_bars'))

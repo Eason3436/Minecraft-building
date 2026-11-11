@@ -1,7 +1,7 @@
 import sys, time, random
 from core import *
 from terrain import *
-import rail, town, landmarks as LM, nature as NA, render as R
+import rail, town, landmarks as LM, nature as NA, mine as MN, render as R
 
 
 def layout(W, T):
@@ -14,15 +14,34 @@ def layout(W, T):
     T['reserved'][100:146, 186:196] = True         # 總站
     T['reserved'][86:104, 183:195] = True          # 市場
     T['reserved'][210:221, 105:150] = True         # 機務段
-    # 石階
+    T['reserved'][146:159, 182:195] = True         # 金市
+    LM.gold_wharf(W, T)
+    LM.summit(W, T)
+    px, pg, pz = T['summit']
+    # 曲折石階：每上一層台地就在平台上橫移再往上
     S = T['stairs'] = {}
-    S['main'] = town.stair_path(W, T, town.until_top(T, 119, 176, 'n'), 'n', 3)
-    S['funi'] = town.stair_path(W, T, town.until_top(T, 125, 176, 'n'), 'n', 1, rail=True)
-    S['w'] = town.stair_path(W, T, town.until_top(T, 84, 174, 'n'), 'n', 2)
-    S['e'] = town.stair_path(W, T, town.until_top(T, 158, 174, 'n'), 'n', 2)
-    S['e1'] = town.stair_path(W, T, town.until_top(T, 200, 80, 'w', top=96), 'w', 2)
-    S['e2'] = town.stair_path(W, T, town.until_top(T, 204, 126, 'w'), 'w', 2)
-    S['sw'] = town.stair_path(W, T, town.until_top(T, 60, 150, 'e', top=46), 'e', 2)
+    S['main'] = town.stair_path(W, T, town.bent_cells(T, 119, 176, 'n', shift=6, first='l'), None, 3)
+    S['funi'] = town.stair_path(W, T, town.until_top(T, 125, 176, 'n'), None, 1, rail=True)
+    S['w'] = town.stair_path(W, T, town.bent_cells(T, 84, 174, 'n', shift=5, first='r'), None, 2)
+    S['e'] = town.stair_path(W, T, town.bent_cells(T, 158, 174, 'n', shift=5, first='r'), None, 2)
+    S['e1'] = town.stair_path(W, T, town.bent_cells(T, 200, 80, 'w', shift=4, first='l'), None, 2)
+    S['e2'] = town.stair_path(W, T, town.bent_cells(T, 204, 126, 'w', shift=5, first='r'), None, 2)
+    S['sw'] = town.stair_path(W, T, town.bent_cells(T, 60, 150, 'e', top=46, shift=4, first='l'), None, 2)
+    # 登頂之字步道：從東梯頂往西，每 9 格南北折一次，最後接上山頂平台
+    (x, z), _ = S['e1'][-1]
+    cells = [(x, z)]; k = 0
+    while x > px + 8:
+        for _ in range(6):
+            if x <= px + 8: break
+            x -= 1; cells.append((x, z))
+        tz = pz + 10 if (k % 2 == 0) else pz + 1
+        while z != tz:
+            z += 1 if tz > z else -1; cells.append((x, z))
+        k += 1
+    while z != pz + 1: z += 1 if pz + 1 > z else -1; cells.append((x, z))
+    while x > px + 3: x -= 1; cells.append((x, z))
+    S['top'] = town.stair_path(W, T, cells, None, 2)
+    MN.prepare(W, T)
     town.terrace_streets(W, T)
     # 下城街道
     town.pave_rect(W, T, 62, 178, 196, 180, level=22)
@@ -34,16 +53,28 @@ def layout(W, T):
     # 東城街道（南北向）＋ 接往下城的斜坡
     town.pave_rect(W, T, 206, 84, 207, 172, level=28)
     LM.main_station(W, T); LM.funicular(W, T); LM.church_plaza(W, T); LM.market(W, T)
-    LM.harbor(W, T); LM.lighthouse(W, T); LM.summit(W, T); LM.depot(W, T); LM.underground_station(W, T)
+    LM.harbor(W, T); LM.lighthouse(W, T); LM.depot(W, T); LM.underground_station(W, T); LM.gold_market(W, T)
     print('windmill', LM.windmill(W, T))
+    print('mine', MN.build(W, T))
+    LM.gold_wharf_fit(W, T)
     houses = []
+    lowq = ['gold', 'bakery', 'inn', 'smith', 'store', 'bank', 'clinic', 'fish', 'tailor', 'school', 'butcher', 'grocer', 'post', 'carpenter', 'gold', 'inn', 'store', 'bakery']
+    upq = ['bakery', 'store', 'inn', 'tailor', 'grocer', 'clinic', 'school', 'gold', 'carpenter', 'butcher', 'post', 'smith']
+    ui = 0
     for L in town.LEVELS:
-        for (x0, z0, fw, fd, d) in town.find_lots(T, L, rng, tol=0, gap_p=0.2):
+        lots = town.find_lots(T, L, rng, tol=0, gap_p=0.2)
+        lots.sort(key=lambda l: -l[2] * l[3])
+        for j, (x0, z0, fw, fd, d) in enumerate(lots):
             if x0 < 70 and z0 < 112: continue          # 西北角孤立台地不蓋屋
             low = L == 22
             floors = rng.choice([3, 3, 4]) if low else rng.choice([2, 2, 3, 3]) if L < 52 else rng.choice([2, 2, 3])
             if x0 > 196: floors = 2
-            houses.append(town.house(W, T, x0, z0, fw, fd, d, L, floors, rng, shop=low and rng.random() < 0.6))
+            kind = None
+            if low and lowq and fw >= 6: kind = lowq.pop(0)
+            elif not low and x0 > 160 and z0 < 78 and fw >= 6 and L >= 34: kind = 'gold'       # 礦場旁的金飾街
+            elif not low and fw >= 7 and j % 3 == 0:
+                kind = upq[ui % len(upq)]; ui += 1
+            houses.append(town.house(W, T, x0, z0, fw, fd, d, L, floors, rng, shop=low and rng.random() < 0.6, kind=kind))
     for L in town.LEVELS:           # 第二輪：補小屋
         for (x0, z0, fw, fd, d) in town.find_lots(T, L, rng, wide=(5, 6), deep=(5,), gap_p=0.2, need=0.5):
             if x0 < 70 and z0 < 112: continue
@@ -73,9 +104,10 @@ def checks(W, T):
         out['sim' + nm] = (rail.simulate(tr), rail.simulate(tr, reverse=True))
         out['sim_slow' + nm] = (rail.simulate(tr, v0=0.1), rail.simulate(tr, reverse=True, v0=0.1))
     out['funi'] = LM.verify_funicular(W, T)
+    out['mine_track'] = MN.verify(W, T)
     px, pg, pz = T['summit']
-    targets = dict(下城主街=(150, 23, 179), 總站月台=(125, 31, 194), 面海月台=(120, 31, 201), 碼頭=(120, 23, 208), 教堂廣場=(127, 59, 108), 山頂=(px, pg + 1, pz + 4),
-                   東城=(206, 29, 120), 地下車站=T['ug_station'], 後山出口=T['ug_exit'], 燈塔=(245, 30, 186), 市場=(92, 23, 189),
+    targets = dict(下城主街=(150, 23, 179), 總站月台=(125, 31, 194), 面海月台=(120, 31, 201), 碼頭=(120, 23, 208), 教堂廣場=(127, 59, 108), 山頂=(px + 3, pg + 1, pz + 1),
+                   東城=(206, 29, 120), 地下車站=T['ug_station'], 後山出口=T['ug_exit'], 燈塔=(245, 30, 186), 礦場坑口=(168, 47, 61), 金礦坑室=(140, 47, 61), 礦坑豎井頂=T['mine_shaft'], 市場=(92, 23, 189), 金市=T['gold_market'], 黃金碼頭=T['gold_wharf'],
                    西梯頂=(T['stairs']['w'][-1][0][0], T['stairs']['w'][-1][1] + 1, T['stairs']['w'][-1][0][1]))
     for i, h_ in enumerate(T['houses']):
         dx, dz = DIRS[h_['front']]
@@ -110,6 +142,7 @@ if __name__ == '__main__':
     for v in sys.argv[1:] or ['sw']:
         if ':' in v:
             v, c = v.split(':'); c = tuple(int(q) for q in c.split(','))
-            print(R.render(W.a, W.names, f'dbg_{v}_crop.png', view=v, scale=4, crop=c))
+            kw = dict(cut_y=c[4], floor_y=c[5]) if len(c) > 4 else {}
+            print(R.render(W.a, W.names, f'dbg_{v}_crop{len(c)}.png', view=v, scale=5, crop=c[:4], **kw))
         else:
             print(R.render(W.a, W.names, f'dbg_{v}.png', view=v, scale=2))

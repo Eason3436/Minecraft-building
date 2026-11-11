@@ -3,7 +3,7 @@ import sys, json, zipfile, hashlib, shutil, time
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 from core import *
-import build as BD, render as R
+import build as BD, render as R, mine as MN, town
 
 NAME = '潮音環線山城'
 FN = 'chaoyin'
@@ -12,7 +12,7 @@ OUT = ROOT / 'structures' / NAME
 PARTS = HERE / 'parts'
 HEADER_UUID = '3d5b1c7e-9a42-4f6b-8c1d-5e7a2b9f4c61'
 MODULE_UUID = 'a4c8e2f1-6b3d-4a95-9e7c-1d2f8b5a3c74'
-VERSION = [1, 0, 0]
+VERSION = [1, 1, 0]
 FONT = '/usr/share/fonts/truetype/wqy/wqy-zenhei.ttc'
 
 
@@ -98,7 +98,9 @@ def main():
     P.append(panel(W, '後山地下車站：移除上方山體（月台、軌道、出口樓梯）', view='se', scale=8, crop=(78, 114, 20, 56), cut_y=40, floor_y=32))
     P.append(panel(W, '教堂廣場：剖切在二樓高度（教堂長椅、祭壇、市政廳）', view='se', scale=7, crop=(100, 146, 88, 122), cut_y=62, floor_y=54))
     P.append(panel(W, '西側溺谷高拱橋與雙軌門型架', view='sw', scale=5, crop=(20, 80, 70, 150), floor_y=12))
-    montage(P, HERE / 'interior.png', f'{NAME}　內部剖視與結構細節', notes)
+    P.append(panel(W, '金礦場：剖切在坑道高度（主坑室、金礦脈、支坑道、坑口礦場）', view='se', scale=6, crop=(122, 180, 38, 84), cut_y=49, floor_y=44))
+    P.append(panel(W, '黃金碼頭：專用鐵路終點、保稅金庫倉、起重機與運金商船', view='se', scale=5, crop=(176, 226, 196, 252), floor_y=12))
+    montage(P, HERE / 'interior.png', f'{NAME}　內部剖視與結構細節', notes, cols=3, cell=(1200, 950))
     # ---- 打包 ----
     OUT.mkdir(parents=True, exist_ok=True)
     for f in OUT.iterdir(): f.unlink()
@@ -108,7 +110,7 @@ def main():
         'prepare': [f'tickingarea add ~{i * 64} ~ ~0 ~{i * 64 + 63} ~{SY - 1} ~255 {FN}{i} true' for i in range(4)],
         'cleanup': [f'tickingarea remove {FN}{i}' for i in range(4)],
         'life': ['summon minecart ~120 ~31 ~197', 'summon minecart ~126 ~31 ~199', 'summon minecart ~96 ~35 ~30', 'summon minecart ~96 ~35 ~28',
-                 'summon minecart ~125 ~24 ~175', 'summon villager ~120 ~23 ~179', 'summon villager ~92 ~23 ~183', 'summon villager ~127 ~59 ~108',
+                 'summon minecart ~125 ~24 ~175', 'summon chest_minecart ~140 ~48 ~60', 'summon chest_minecart ~202 ~30 ~110', 'summon chest_minecart ~202 ~24 ~228', 'summon minecart ~168 ~48 ~60', 'summon villager ~120 ~23 ~179', 'summon villager ~92 ~23 ~183', 'summon villager ~127 ~59 ~108',
                  'summon villager ~150 ~23 ~179', 'summon cat ~118 ~23 ~184', 'summon dolphin ~120 ~16 ~236', 'summon tropicalfish ~110 ~17 ~226'],
         'view': ['tp @s ~20 ~110 ~290 facing ~122 ~50 ~120'],
         'station': ['tp @s ~123 ~31 ~194 facing ~123 ~31 ~210'],
@@ -121,9 +123,14 @@ def main():
         'highline': ['tp @s ~214 ~40 ~100 facing ~224 ~38 ~120'],
         'lighthouse': ['tp @s ~245 ~32 ~184 facing ~245 ~45 ~190'],
         'funicular': ['tp @s ~123 ~23 ~178 facing ~125 ~40 ~140'],
+        'mine': ['tp @s ~140 ~47 ~62 facing ~132 ~48 ~58'],
+        'mineyard': ['tp @s ~172 ~47 ~58 facing ~164 ~49 ~60'],
+        'goldline': ['tp @s ~198 ~30 ~150 facing ~202 ~26 ~176'],
+        'goldport': ['tp @s ~203 ~24 ~214 facing ~210 ~28 ~232'],
+        'goldmarket': ['tp @s ~152 ~23 ~181 facing ~152 ~24 ~190'],
         'windmill': [f'tp @s ~{wm[0] + 8} ~{wm[1] + 3} ~{wm[2] + 8} facing ~{wm[0]} ~{wm[1] + 8} ~{wm[2]}'],
     }
-    desc = '由雙軌環狀鐵路圍繞的靠海山城：地中海彩色台地聚落、海堤高架總站、東側爬坡高架、後山地下鐵路與地下車站、溺谷高拱橋、纜索鐵道、教堂廣場、港口與燈塔。256×256×128，16 分件。'
+    desc = '由雙軌環狀鐵路圍繞的靠海山城：地中海彩色台地聚落、海堤高架總站、爬坡高架、後山地下鐵路、溺谷高拱橋、纜索鐵道、山腹金礦場、黃金專用鐵路與黃金出口碼頭、金市與生活店鋪。256×256×128，16 分件。'
     manifest = {'format_version': 2, 'header': {'name': NAME, 'description': desc, 'uuid': HEADER_UUID, 'version': VERSION, 'min_engine_version': [1, 26, 60]},
                 'modules': [{'type': 'data', 'uuid': MODULE_UUID, 'version': VERSION}]}
     mc = OUT / (NAME + '.mcpack')
@@ -138,6 +145,11 @@ def main():
     shutil.copyfile(HERE / 'overall.png', OUT / (NAME + '_整體渲染.png'))
     shutil.copyfile(HERE / 'interior.png', OUT / (NAME + '_內部剖視.png'))
     ri = T['railinfo']; sim = c2['simA'][0]
+    kinds = {}
+    for h_ in T['houses']:
+        if h_.get('kind'): kinds.setdefault(h_['kind'], []).append((h_['x0'], h_['base'] + 1, h_['z0']))
+    shop_lines = '\n'.join(f"  {town.KIND_NAME[k]} ×{len(v)}：" + '、'.join(str(p) for p in v[:3]) + ('…' if len(v) > 3 else '') for k, v in kinds.items())
+    mp = T['mine_path']; sh = T['mine_shaft']
     txt = f"""{NAME}　使用說明
 ================================
 
@@ -162,6 +174,25 @@ def main():
   空礦車阻力大很多，不保證能自己繞完一圈。
 ・沿線裝飾：{ri['gantries']} 座雙軌門型架（橫樑＋吊燈）、高架石護欄與燈柱、平地段樹籬與圍籬交錯、橋墩與拱、隧道洞門。
 
+【金礦場與黃金出口】
+・金礦坑：開在山體東北側的山腹裡。坑口礦場在 (168, 46, 60)，有洞門、礦石堆、礦石斗、起重架與工寮。
+  主坑道往西通到主坑室 (139, 46, 60)：不規則穹頂、兩根岩柱、岩壁上的金礦脈（金礦石、深板岩金礦石、原金塊）、熔爐與箱子、木棧台。
+  另有北、南兩條支坑道和掌子面；西南支坑道接一座梯子豎井，直通山頂平台的井架 ({sh[0]}, {sh[1]}, {sh[2]})。
+・黃金專用鐵路：單線，全長 {len(mp)} 格，從主坑室出坑口，沿台地一路下坡往東，再貼著環線高架橋腳往南，
+  從環線高架底下的石造箱涵穿過，直達黃金碼頭突堤末端 (202, 22, {MN.PIER_END})。全線落差 {mp[0][1] - mp[-1][1]} 格。
+  除了轉角以外全部是動力鐵軌，每 3 格墊一個紅石塊，兩端有擋塊，礦車碰到擋塊會自動折返。
+  /function {FN}/life 會在線上放三台運輸礦車（箱子礦車）。它和環狀雙軌是分開的兩套鐵路，不相接。
+・黃金碼頭（港口東側加大）：石岸壁與突堤、磚造保稅金庫倉（庫內金磚垛）、兩座橫跨鐵路的門型起重機、金箱堆。
+  突堤東側停一艘三桅大型運金商船（甲板載金磚與箱子），西側停一艘雙桅商船。防波堤改到港口東側。 (205, 22, 212)
+・金市：站前廣場東側，四個黃白篷攤位與金秤台。 (152, 22, 188)
+
+【生活機能店鋪】（門楣上有代表方塊當招牌，一樓是對應的店內陳設；座標是建築西北角）
+{shop_lines}
+  礦場旁的台地是金飾街；下城主街集中了大部分店鋪。
+
+【石階】
+全城石階都是曲折的：每爬上一層台地，就在平台上橫移幾格再繼續往上；登頂步道是之字形，接到山頂平台。
+
 【搭車方式】
 1. /function {FN}/life 會在總站與地下車站的軌道上各放礦車（也可以自己放）。
 2. 坐上礦車後按一下前進鍵，碰到動力軌就會自己加速繞行。
@@ -172,12 +203,12 @@ def main():
 ・海濱總站：一樓大廳與售票亭、樓梯上月台、二樓候車室、鐘塔、兩側月台雨棚；面海月台有樓梯下到沙灘。 (123, 30, 192)
 ・下城：濱海主街、市場攤位與水井、店面街屋。 (120, 22, 179)
 ・台地聚落：6 層擋土牆台地，共 {len(T['houses'])} 棟彩色街屋，每棟都有室內（家具、床、吊燈、梯子），門口都能從總站步行走到。
-・百階大道與石階：(119, 22→58, 176→118) 為主石階，另有東、西、東城、西南共 6 條石階。
+・主石階從站前廣場 (119, 22, 176) 曲折上到教堂廣場，另有東、西、東城等石階與之字登頂步道。
 ・教堂廣場：教堂（玫瑰窗、彩色玻璃、長椅、祭壇）、30 格高鐘樓、市政廳、噴泉。 (127, 58, 104)
 ・山頂瞭望鐘樓與城堡遺跡：({px}, {pg}, {pz})，由東側登頂石階上山。
 ・後山地下車站：(96, 34, 30)，樓梯往南通到後山山腰出口 ({ex}, {ey}, {ez})。
 ・西側溺谷高拱橋：(40, 34, 108)；旁邊有葡萄梯田、瀑布與風車 ({wm[0]}, {wm[1]}, {wm[2]})。
-・東城與舊機務段：磚造車庫、靜態蒸汽機車與兩節車廂（展示用，不與環線相連）。 (215, 28, 125)
+・東城與舊機務段：磚造車庫、靜態蒸汽機車與兩節車廂（展示用，不與環線相連）。 (215, 28, 120)
 ・港口：石碼頭、商港突堤與木起重機、兩艘帆船、漁港木棧橋與小漁船、亂石防波堤、沙灘陽傘。 (120, 22, 208)
 ・燈塔岬：紅白燈塔與守燈人小屋。 (245, 30, 190)
 
@@ -205,6 +236,11 @@ def main():
   /function {FN}/funicular   纜索鐵道下站
   /function {FN}/lighthouse  燈塔
   /function {FN}/windmill    風車
+  /function {FN}/mine        金礦主坑室
+  /function {FN}/mineyard    坑口礦場
+  /function {FN}/goldline    黃金專用鐵路（橋下箱涵前）
+  /function {FN}/goldport    黃金碼頭
+  /function {FN}/goldmarket  金市
 
 【手動載入】
 結構 ID：{NAMESPACE}:p_{{0-3}}_{{0-3}}
@@ -215,14 +251,15 @@ def main():
 
 【附圖】
 {NAME}_整體渲染.png：西南上空俯視全景。
-{NAME}_內部剖視.png：總站與下城一樓剖切、地下車站、教堂廣場剖切、溺谷高拱橋。
+{NAME}_內部剖視.png：總站與下城一樓剖切、地下車站、教堂廣場剖切、溺谷高拱橋、金礦場剖切、黃金碼頭。
 兩張圖都依方塊資料繪製，不是遊戲截圖；樓梯、半磚、柵欄等以簡化方塊表示。
 
 【測試狀態】
 已通過：16 分件 NBT 重新解析與逐格比對、所有方塊 ID 與 state 對照官方 1.26.60 方塊表、
-兩條環線沿軌 3D 走查（相接、淨空、支承、供電）、纜索鐵道走查、礦車動能模擬、全部房屋門口的步行連通檢查。
+兩條環線沿軌 3D 走查（相接、淨空、支承、供電）、纜索鐵道與黃金專用鐵路走查、礦車動能模擬、
+全部房屋門口與各景點（含金礦坑室、豎井頂、黃金碼頭）的步行連通檢查。
 尚未在 Minecraft 遊戲內實測。動能模擬用的是近似公式，實際速度可能略有出入。
-床、箱子、熔爐等沒有寫入方塊實體資料，載入後是遊戲預設內容（空箱、預設床色）。
+床、箱子、熔爐等沒有寫入方塊實體資料，載入後是遊戲預設內容（空箱、預設床色）；店鋪的「商品」是擺設方塊，不是可交易的村民。
 """
     (OUT / (NAME + '_使用說明.txt')).write_text(txt, encoding='utf-8-sig')
     assert len(list(OUT.iterdir())) == 4

@@ -383,14 +383,14 @@ def market(W, T):
 
 
 # ================================================================ 港口
-def boat(W, x0, z0, L, sail, hull='spruce_planks', trim='dark_oak_planks', axis='z'):
+def boat(W, x0, z0, L, sail, hull='spruce_planks', trim='dark_oak_planks', axis='z', hw=None, cargo=False):
     """小船／帆船。x0,z0＝船身中心線起點（船尾），沿 axis 延伸 L 格。船底在海面下 1 格。"""
     B = W.B
     def P(i, j, y, b):                         # i 沿船身，j 橫向
         x, z = (x0 + j, z0 + i) if axis == 'z' else (x0 + i, z0 + j)
         W.put(x, y, z, b)
         if y <= SEA and 0 <= x < SX and 0 <= z < SZ and b != 0 and W.names[b] not in ('air',): W.w2[x, y, z] = False
-    hw = 1 if L <= 7 else 2
+    hw = hw or (1 if L <= 7 else 2)
     for i in range(L):
         t = i / (L - 1)
         wdt = hw if 0.18 < t < 0.8 else max(hw - 1, 0) if 0.06 < t < 0.94 else 0
@@ -404,13 +404,13 @@ def boat(W, x0, z0, L, sail, hull='spruce_planks', trim='dark_oak_planks', axis=
         if L > 7 and (i in (0, 1) or i >= L - 2):
             for j in range(-wdt, wdt + 1): P(i, j, SEA + 1, B(trim)); P(i, j, SEA + 2, W.slab('dark_oak_slab'))
     if sail:
-        masts = [L // 2] if L <= 12 else [L // 3, 2 * L // 3]
+        masts = [L // 2] if L <= 12 else [L // 3, 2 * L // 3] if L <= 24 else [L // 5 + 1, L // 2, 4 * L // 5 - 1]
         for m in masts:
-            H = 6 if L <= 7 else 11
+            H = 6 if L <= 7 else 11 if L <= 24 else (13 if m != L // 2 else 16)
             for y in range(SEA, SEA + H + 1): P(m, 0, y, B('spruce_fence') if L <= 7 else W.log('spruce_log'))
             sc = B(sail[0]); sc2 = B(sail[1])
             for yy in range(3, H):
-                wd = (1 if L <= 7 else 3) - (1 if yy > H - 3 and L > 7 else 0)
+                wd = (1 if L <= 7 else 3 if L <= 24 else hw + 1) - (1 if yy > H - 3 and L > 7 else 0)
                 for j in range(-wd, wd + 1):
                     if j != 0 or True: P(m + 1, j, SEA + yy, sc if (yy // 2) % 2 == 0 else sc2)
             P(m, 0, SEA + H + 1, B('red_wool'))
@@ -419,6 +419,16 @@ def boat(W, x0, z0, L, sail, hull='spruce_planks', trim='dark_oak_planks', axis=
             P(L // 2 + 2, 1, SEA + 1, B('barrel', facing_direction=1)); P(2, 0, SEA + 2, B('lantern'))
     else:
         P(L // 2, 0, SEA + 1, B('barrel', facing_direction=1))
+    if cargo:                                  # 甲板上的黃金貨物
+        mset = set(masts) | {m + 1 for m in masts}
+        k = 0
+        for i in range(4, L - 4):
+            if i in mset: continue
+            for j in (-(hw - 1), hw - 1):
+                k += 1
+                if k % 3 == 0: continue
+                P(i, j, SEA + 1, B('gold_block') if k % 4 == 1 else B('raw_gold_block') if k % 4 == 2 else B('chest', cardinal_direction='south'))
+                if k % 5 == 1: P(i, j, SEA + 2, B('raw_gold_block'))
 
 
 def harbor(W, T):
@@ -477,7 +487,7 @@ def harbor(W, T):
     rs = np.random.RandomState(9)
     pts = []
     for t in np.linspace(0, 1, 60):
-        pts.append((200 - 30 * t - 12 * t * t, 208 + 40 * t))
+        pts.append((234 - 14 * t * t, 206 + 46 * t))
     for i, (px, pz) in enumerate(pts):
         r = 3.6 + 0.8 * math.sin(i / 3.0)
         for dx in range(-6, 7):
@@ -498,7 +508,7 @@ def harbor(W, T):
     k = 0
     for x in list(range(48, 92, 9)) + list(range(160, 215, 9)):
         z = 203 + (k % 2) * 2
-        if T['sea'][x, z] or h[x, z] > 22 or a[x, int(h[x, z]) + 1, z] != 0: k += 1; continue
+        if T['sea'][x, z] or h[x, z] > 22 or a[x, int(h[x, z]) + 1, z] != 0 or T['street'][x, z] or T['reserved'][x, z]: k += 1; continue
         y = int(h[x, z])
         a[x, y + 1, z] = B('birch_fence'); a[x, y + 2, z] = B('birch_fence')
         c = ['red', 'yellow', 'light_blue', 'orange', 'lime', 'pink'][k % 6]
@@ -803,3 +813,113 @@ def windmill(W, T):
                 a[hx, hy + dy + sy * s2 * (1 if not dy else 0), cz + dz + sz * s2 * (1 if dy else 0)] = B('white_wool')
     T['windmill'] = (cx, G, cz)
     return best
+
+
+# ================================================================ 金市（站前廣場東側）
+def gold_market(W, T):
+    B = W.B; a = W.a
+    G = 22
+    x0, x1, z0, z1 = 147, 157, 182, 194
+    for x in range(x0, x1 + 1):
+        for z in range(z0, z1 + 1):
+            if T['cor'][x, z]: continue
+            a[x, G, z] = B('polished_andesite') if (x + z) % 2 else B('smooth_sandstone'); a[x, G + 1:G + 6, z] = 0
+            T['street'][x, z] = True
+    goods = [('gold_block', 'raw_gold_block'), ('raw_gold_block', 'gold_ore'), ('gold_block', 'bell'), ('raw_gold_block', 'gold_block')]
+    k = 0
+    for sx in (148, 153):
+        for sz in (183, 189):
+            for dx, dz in ((0, 0), (3, 0), (0, 2), (3, 2)):
+                for y in (G + 1, G + 2): a[sx + dx, y, sz + dz] = B('birch_fence')
+            for dx in range(4):
+                for dz in range(3): a[sx + dx, G + 3, sz + dz] = B('yellow_wool') if (dx + dz) % 2 == 0 else B('white_wool')
+            g1, g2 = goods[k]
+            a[sx + 1, G + 1, sz] = B(g1); a[sx + 2, G + 1, sz] = W.slab('smooth_quartz_slab', True)
+            a[sx + 2, G + 2, sz] = B(g2) if g2 != 'bell' else B('bell', attachment='standing')
+            a[sx + 1, G + 1, sz + 2] = B('chest', cardinal_direction='south'); a[sx + 2, G + 1, sz + 2] = B(g2 if g2 != 'bell' else 'gold_block')
+            a[sx + 1, G + 2, sz + 1] = W.lantern(True)
+            k += 1
+    # 中央：金秤台
+    cx, cz = 152, 187
+    a[cx, G + 1, cz] = B('chiseled_stone_bricks'); a[cx, G + 2, cz] = B('gold_block'); a[cx, G + 3, cz] = B('stone_brick_wall'); a[cx, G + 4, cz] = W.lantern()
+    T['gold_market'] = (152, G + 1, 188)
+
+
+# ================================================================ 黃金碼頭（出口港）
+def gold_wharf(W, T):
+    """港口東側加大：黃金專用鐵路的終點。石岸壁、突堤、保稅金庫倉、兩座起重機、裝金的大商船。先整地（鐵路之後才鋪）。"""
+    B = W.B; a = W.a; M = _mats(W); h = T['h']
+    Q = 22; water = B('water')
+    def slab_area(x0, x1, z0, z1):
+        for x in range(x0, x1 + 1):
+            for z in range(z0, z1 + 1):
+                for y in range(min(int(h[x, z]), Q - 8), Q): a[x, y, z] = M['stone']()
+                edge = x in (x0, x1) or z in (z0, z1)
+                a[x, Q, z] = B('polished_andesite') if edge else B('stone_bricks') if (x + z) % 3 else B('andesite')
+                col = a[x, Q + 1:Q + 8, z]; col[col == water] = 0
+                h[x, z] = Q; T['street'][x, z] = True; T['reserved'][x, z] = True; T['sea'][x, z] = False
+    slab_area(184, 218, 203, 214)                  # 岸壁
+    slab_area(198, 206, 215, 244)                  # 突堤（鐵路走中央 x=202）
+    T['gold_wharf'] = (205, Q + 1, 212)
+
+
+def gold_wharf_fit(W, T):
+    """鐵路鋪好後的碼頭設施。"""
+    B = W.B; a = W.a; M = _mats(W)
+    Q = 22
+    # 保稅金庫倉 x=185..196, z=204..212
+    for x in range(185, 197):
+        for z in range(204, 213):
+            rim = x in (185, 196) or z in (204, 212)
+            for y in range(Q + 1, Q + 7):
+                a[x, y, z] = (B('brick_block') if (x + y + z) % 6 else B('granite')) if rim else 0
+            a[x, Q, z] = B('polished_andesite')
+        for i in range(6):
+            y = Q + 7 + i; zl, zr = 203 + i, 213 - i
+            if zl < zr: a[x, y, zl] = W.stairs('deepslate_tile_stairs', 's'); a[x, y, zr] = W.stairs('deepslate_tile_stairs', 'n')
+            else: a[x, y, zl] = W.slab('deepslate_tile_slab')
+            if x in (185, 196):
+                for z in range(zl + 1, zr): a[x, y, z] = B('brick_block')
+    for z in (207, 208, 209):                      # 面向鐵路的大門
+        for y in range(Q + 1, Q + 5): a[196, y, z] = 0
+    a[196, Q + 5, 208] = B('gold_block')
+    for x in range(187, 195, 3):
+        for y in (Q + 3, Q + 4): a[x, y, 204] = B('iron_bars'); a[x, y, 212] = B('iron_bars')
+    for x in range(186, 195):                      # 庫內金磚垛
+        for z in (205, 206, 210, 211):
+            if (x + z) % 3 == 0: continue
+            a[x, Q + 1, z] = B('gold_block') if (x + z) % 2 else B('raw_gold_block')
+            if (x * 3 + z) % 4 == 0: a[x, Q + 2, z] = B('gold_block')
+    for x in (188, 192): a[x, Q + 5, 208] = W.lantern(True); a[x, Q + 6, 208] = B('iron_chain')
+    a[195, Q + 1, 205] = B('chest', cardinal_direction='south'); a[195, Q + 1, 211] = B('barrel', facing_direction=1); a[194, Q + 1, 211] = B('lectern', cardinal_direction='north')
+    # 兩座門型起重機，橫跨鐵路
+    for cz in (222, 234):
+        for x in (199, 205):
+            for y in range(Q + 1, Q + 9): a[x, y, cz] = W.log('spruce_log')
+        for x in range(197, 212): a[x, Q + 9, cz] = W.log('stripped_spruce_log', 'x')
+        for y in range(Q + 5, Q + 9): a[210, y, cz] = B('iron_chain')
+        a[210, Q + 4, cz] = B('gold_block'); a[210, Q + 3, cz] = B('gold_block') if cz == 222 else B('chest', cardinal_direction='south')
+        a[199, Q + 8, cz + 1] = W.lantern(True) if False else 0
+    # 突堤上的金箱堆、繫船柱、燈柱
+    for z in range(217, 243, 4):
+        a[198, Q + 1, z] = B('dark_oak_log'); a[206, Q + 1, z] = B('dark_oak_log')
+        if z % 8 == 1:
+            a[200, Q + 1, z + 1] = B('stone_brick_wall'); a[200, Q + 2, z + 1] = B('stone_brick_wall'); a[200, Q + 3, z + 1] = W.lantern()
+    for (x, z, b) in ((204, 218, 'gold_block'), (204, 219, 'raw_gold_block'), (205, 219, 'chest'), (204, 227, 'raw_gold_block'), (205, 227, 'gold_block'), (204, 228, 'gold_block'),
+                      (200, 230, 'chest'), (200, 238, 'raw_gold_block'), (204, 239, 'gold_block'), (204, 240, 'barrel'), (200, 239, 'gold_block')):
+        if a[x, Q + 1, z] != 0: continue
+        a[x, Q + 1, z] = B('chest', cardinal_direction='west') if b == 'chest' else B('barrel', facing_direction=1) if b == 'barrel' else B(b)
+    a[204, Q + 2, 218] = B('gold_block'); a[204, Q + 2, 227] = B('raw_gold_block')
+    # 岸壁上的秤量所與柵門
+    for x in range(208, 217):
+        a[x, Q + 1, 204] = B('iron_bars')
+    for (x, z) in ((208, 208), (214, 210), (209, 212)):
+        a[x, Q + 1, z] = B('raw_gold_block'); 
+    a[214, Q + 2, 210] = B('gold_block')
+    for (x, z) in ((185, 214), (218, 203), (218, 214), (207, 214)):
+        a[x, Q + 1, z] = B('stone_brick_wall'); a[x, Q + 2, z] = B('stone_brick_wall'); a[x, Q + 3, z] = W.lantern()
+    # 商船：大型三桅運金船靠突堤東側，另一艘雙桅船靠西側
+    boat(W, 212, 216, 29, ('white_wool', 'yellow_wool'), hull='dark_oak_planks', trim='spruce_planks', axis='z', hw=4, cargo=True)
+    boat(W, 193, 220, 19, ('white_wool', 'orange_wool'), axis='z', cargo=True)
+    for z in (224, 232):                           # 跳板
+        for x in (207,): a[x, Q, z] = W.slab('spruce_slab', True)

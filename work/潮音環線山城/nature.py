@@ -193,7 +193,7 @@ def walkable_check(W, T, start, targets):
     """玩家步行連通：站在實心/樓梯/半磚上、頭上 2 格淨空、每步高差 ≤1。"""
     a = W.a; names = W.names
     PASS = ('air', 'carpet', 'rail', 'short_grass', 'fern', 'poppy', 'dandelion', 'cornflower', 'daisy', 'allium', 'tulip', 'bluet', 'vine', 'lever', 'door', 'pressure_plate', 'ladder', 'trapdoor', 'lantern_x')
-    passable = np.array([any(k in n for k in PASS) and 'block' not in n for n in names])
+    passable = np.array([n == 'air' or (any(k in n for k in PASS[1:]) and 'block' not in n) for n in names])
     NOSTAND = ('water', 'leaves', 'fence', '_wall', 'pane', 'bars', 'lantern', 'campfire', 'kelp', 'seagrass', 'chain')
     stand = np.array([not passable[i] and not any(k in n for k in NOSTAND) for i, n in enumerate(names)])
     P = passable[a]; S = stand[a]
@@ -216,7 +216,7 @@ def walkable_check(W, T, start, targets):
                     seen[nx, ny, nz] = True; dq.append((nx, ny, nz))
     res = {}
     for name, (tx, ty, tz) in targets.items():
-        sub = seen[max(tx - 3, 0):tx + 4, max(ty - 4, 0):ty + 5, max(tz - 3, 0):tz + 4]
+        sub = seen[max(tx - 2, 0):tx + 3, max(ty - 2, 0):ty + 3, max(tz - 2, 0):tz + 3]
         res[name] = bool(sub.any())
     return res, seen
 
@@ -229,6 +229,10 @@ def clear_ways(W, T):
     for (x, z), y in T['funi']:
         for dx in (-1, 0, 1):
             col = a[x + dx, y + 1:y + 6, z]; m = veg[col]; n += int(m.sum()); col[m] = 0
+    for (x, z), y in T.get('mine_path', []):
+        for dx in (-1, 0, 1):
+            for dz in (-1, 0, 1):
+                col = a[x + dx, y + 1:y + 5, z + dz]; m = veg[col]; n += int(m.sum()); col[m] = 0
     xs, zs = np.nonzero(T['cor'] & ~T['tunnel'])
     for x, z in zip(xs.tolist(), zs.tolist()):
         r_ = int(T['ry'][x, z]); col = a[x, r_:r_ + 6, z]; m = veg[col]; n += int(m.sum()); col[m] = 0
