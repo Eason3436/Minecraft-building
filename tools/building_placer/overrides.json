@@ -19,7 +19,8 @@
     "tunnel": "隧道",
     "bridge": "河橋",
     "ground": "地面鐵路",
-    "elevated": "微高架"
+    "elevated": "微高架",
+    "all": "三款並排"
   },
   "ids": {
     "qingxi_260919:tunnel": "晴石拱門隧道",
