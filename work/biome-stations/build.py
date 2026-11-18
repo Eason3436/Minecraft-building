@@ -102,8 +102,8 @@ def main():
     panels = []
     for b in BIOMES:
         A, names = combine(allp[b['id']])
-        panels.append((rimg(A, names, view='sw', scale=4), f"{b['zh']}　示範線（地下站→隧道→坡道→高架→高架站）"))
-    montage(panels, HERE / 'overall.png', f'{NAME}　16 生態系 × 5 模組（每件寬 13、高 30；全線 112 格）　西南上空', cols=4, cell=(1150, 640))
+        panels.append((rimg(A, names, view='se', scale=4), f"{b['zh']}　示範線（地下站→隧道→坡道→高架→高架站）"))
+    montage(panels, HERE / 'overall.png', f'{NAME}　16 生態系 × 5 模組（每件寬 13、高 30；全線 112 格）　東南上空', cols=4, cell=(1150, 640))
     ip = []
     for b in BIOMES:
         pcs = allp[b['id']]
@@ -246,7 +246,7 @@ mangrove 紅樹林、savanna 莽原、badlands 惡地、mushroom 蘑菇島、oce
 
 {biome_block}
 【附圖】
-{NAME}_整體渲染.png：16 條示範線（西南上空）。
+{NAME}_整體渲染.png：16 條示範線（東南上空）。
 {NAME}_內部剖視.png：每個生態系的地下車站（剖去天花板）與高架車站（剖去屋頂）。
 兩張圖都依方塊資料繪製，不是遊戲截圖；樓梯、半磚、柵欄、植物等以簡化方塊表示。
 
