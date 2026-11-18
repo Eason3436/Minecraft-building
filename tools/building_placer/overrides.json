@@ -27,7 +27,9 @@
     "qingxi_260919:ground": "晴溪地面鐵路",
     "qingxi_260919:elevated": "晴溪微高架"
   },
-  "packs": {},
+  "packs": {
+    "雪梨歌劇院": {"build": "雪梨歌劇院園區", "bridge_far": "海港大橋（遠景）"}
+  },
   "skip": [
     "分區成果"
   ]
