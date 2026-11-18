@@ -19,7 +19,8 @@
     "tunnel": "隧道",
     "bridge": "河橋",
     "ground": "地面鐵路",
-    "elevated": "微高架"
+    "elevated": "微高架",
+    "all": "三款並排"
   },
   "ids": {
     "qingxi_260919:tunnel": "晴石拱門隧道",
@@ -46,7 +47,8 @@
       "palegarden": "蒼白之園示範線",
       "nether": "下界示範線",
       "gallery": "全部 16 條示範線"
-    }
+    },
+    "雪梨歌劇院": {"build": "雪梨歌劇院園區", "bridge_far": "海港大橋（遠景）"}
   },
   "skip": [
     "分區成果"
