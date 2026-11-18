@@ -19,7 +19,8 @@
     "tunnel": "隧道",
     "bridge": "河橋",
     "ground": "地面鐵路",
-    "elevated": "微高架"
+    "elevated": "微高架",
+    "all": "三款並排"
   },
   "ids": {
     "qingxi_260919:tunnel": "晴石拱門隧道",
@@ -27,7 +28,28 @@
     "qingxi_260919:ground": "晴溪地面鐵路",
     "qingxi_260919:elevated": "晴溪微高架"
   },
-  "packs": {},
+  "packs": {
+    "生態系車站合集": {
+      "plains": "平原示範線",
+      "desert": "沙漠示範線",
+      "snowy": "雪原示範線",
+      "jungle": "叢林示範線",
+      "taiga": "針葉林示範線",
+      "birch": "樺木林示範線",
+      "darkforest": "黑森林示範線",
+      "swamp": "沼澤示範線",
+      "mangrove": "紅樹林示範線",
+      "savanna": "莽原示範線",
+      "badlands": "惡地示範線",
+      "mushroom": "蘑菇島示範線",
+      "ocean": "海洋示範線",
+      "cherry": "櫻花林示範線",
+      "palegarden": "蒼白之園示範線",
+      "nether": "下界示範線",
+      "gallery": "全部 16 條示範線"
+    },
+    "雪梨歌劇院": {"build": "雪梨歌劇院園區", "bridge_far": "海港大橋（遠景）"}
+  },
   "skip": [
     "分區成果"
   ]

@@ -1,0 +1,193 @@
+﻿生態系車站合集　使用說明
+================================
+
+【這是什麼】
+Minecraft 16 個生態系，每個生態系各一座「高架車站」與「地下車站」，再加上同風格的
+「隧道段」「高架段」和「升降坡道」（把地下鐵路接到高架），一共 80 個小模組。
+每件都只有 13 格寬，放置很方便；所有模組共用同一個斷面，可以照自己的需求任意串接。
+可用建築放置台放置。
+
+【每個生態系的 5 個模組】（寬 X × 高 Y × 深 Z）
+・地下車站　_ug_station　24 × 30 × 13：島式月台、長椅花台、壁燈與壁柱、樓梯上到地面出入口亭。
+・隧道段　　_ug_track　　16 × 30 × 13：雙線隧道，每 8 格一道拱圈、中央立柱與壁燈；地表有該生態系的樹和花草。
+・升降坡道　_ramp　　　　32 × 30 × 13：西端接隧道（軌面低），經洞口、路塹、路堤，東端接高架（軌面高），共升 15 格。
+・高架段　　_el_track　　16 × 30 × 13：橋墩＋拱腋、護欄、門型架與吊燈。
+・高架車站　_el_station　24 × 30 × 13：島式月台、依生態系變化的屋頂、側窗、月台中央樓梯下到橋下廣場。
+
+【接合規則（自己串接時看這裡）】
+・軌道沿 X 方向（東西向），兩條軌道在 z=2 與 z=10，兩件只要 z 對齊、x 首尾相接就能接上。
+・地下軌道高度 y=2，高架軌道高度 y=17（結構內座標）；坡道的西端是地下高度、東端是高架高度。
+・示範線的順序（西→東）：地下車站(x0) → 隧道段(x24) → 升降坡道(x40) → 高架段(x72) → 高架車站(x88)，全長 112 格。
+・隧道段、高架段可以重複接很多段；車站也可以直接接車站。坡道只能「地下在西、高架在東」，
+  若要反方向，用 /structure load 的旋轉參數把整段轉 180° 即可。
+・結構 y=9 是地表頂面（草地、沙、雪…），y0–8 是地層。
+  - 想嵌進一般世界的地面：站在地面上，用 ~ ~-10 ~ 載入（地表剛好對齊你腳下那一層）。
+  - 超平坦世界地層太薄，請用 ~ ~ ~ 平放，會變成一塊「立體剖面模型」，地下站剖面看得一清二楚。
+・每欄最高方塊上方 3 格以內是空氣（保證軌道淨空），再往上是「結構空位」，不會清掉原地形的樹。
+
+【搭車與拉桿】
+・兩座車站的月台中段（x10–13）各有 4 格動力軌，由月台上的拉桿（x12，靠軌道那一側）供電。
+  拉桿預設是開（直通）。把拉桿關掉，礦車進站就會停在月台；要發車時打開拉桿再按前進鍵。
+・車站兩端（x2、x21）、隧道段與高架段（x4、x12）各有一格動力軌，下面墊紅石塊常時通電。
+・升降坡道整段都是動力軌（下墊紅石塊），載人礦車可以直接爬上 15 格。
+・各模組的動力段彼此不相鄰，所以常時通電的紅石塊不會讓車站拉桿失效。
+・一鍵載入示範線時，函式會在線路兩端各放一塊石磚當擋塊，礦車碰到會反彈。
+
+【一鍵載入】
+請先在世界設定開啟作弊，並啟用本行為包。站在要放置的位置（會是西北下角）：
+  /function bst/<生態系>          平放整條示範線（112 × 30 × 13）
+  /function bst/<生態系>_embed    嵌入地面（向下 10 格）
+  /function bst/<生態系>/<模組>    只放一件，例如 /function bst/cherry/el_station
+全部 16 條一次排開（112 × 30 × 256）：
+  /function bst/gallery_prepare   先建立常駐區塊（遠處才載得進去）
+  /function bst/gallery           16 條示範線，每條間隔 16 格（z = 0, 16, 32 …）
+  /function bst/gallery_cleanup   放完後移除常駐區塊
+
+【手動載入】
+  /give @s structure_block，把結構方塊切到「載入」模式，輸入下面的結構 ID。
+  或用指令：/structure load biomesta_261118:<生態系>_<模組> ~ ~ ~
+  嵌入地面：/structure load biomesta_261118:<生態系>_<模組> ~ ~-10 ~
+  （例：櫻花林的高架車站是 cherry_el_station，前面加上 biomesta_261118: 就是完整 ID。）
+
+【16 個生態系與結構 ID】
+生態系代號：plains 平原、desert 沙漠、snowy 雪原、jungle 叢林、taiga 針葉林、birch 樺木林、darkforest 黑森林、swamp 沼澤、
+mangrove 紅樹林、savanna 莽原、badlands 惡地、mushroom 蘑菇島、ocean 海洋、cherry 櫻花林、palegarden 蒼白之園、nether 下界
+
+【平原】石砌橋墩＋橡木柱、雲杉山形屋頂、黃色月台邊線；地面草花、橡樹。
+  平原地下車站　biomesta_261118:plains_ug_station　（24×30×13）
+  平原隧道段　biomesta_261118:plains_ug_track　（16×30×13）
+  平原升降坡道　biomesta_261118:plains_ramp　（32×30×13）
+  平原高架段　biomesta_261118:plains_el_track　（16×30×13）
+  平原高架車站　biomesta_261118:plains_el_station　（24×30×13）
+  一鍵載入整條示範線：/function bst/plains（平放）　/function bst/plains_embed（嵌入地面）
+
+【沙漠】切製砂岩、平頂加天窗、橘陶瓦月台邊；仙人掌、枯灌木。
+  沙漠地下車站　biomesta_261118:desert_ug_station　（24×30×13）
+  沙漠隧道段　biomesta_261118:desert_ug_track　（16×30×13）
+  沙漠升降坡道　biomesta_261118:desert_ramp　（32×30×13）
+  沙漠高架段　biomesta_261118:desert_el_track　（16×30×13）
+  沙漠高架車站　biomesta_261118:desert_el_station　（24×30×13）
+  一鍵載入整條示範線：/function bst/desert（平放）　/function bst/desert_embed（嵌入地面）
+
+【雪原】雲杉木構、階梯式積雪屋頂、浮冰壁帶與海燈籠；積雪地面、雪杉。
+  雪原地下車站　biomesta_261118:snowy_ug_station　（24×30×13）
+  雪原隧道段　biomesta_261118:snowy_ug_track　（16×30×13）
+  雪原升降坡道　biomesta_261118:snowy_ramp　（32×30×13）
+  雪原高架段　biomesta_261118:snowy_el_track　（16×30×13）
+  雪原高架車站　biomesta_261118:snowy_el_station　（24×30×13）
+  一鍵載入整條示範線：/function bst/snowy（平放）　/function bst/snowy_embed（嵌入地面）
+
+【叢林】苔石遺跡風、竹編屋頂上覆叢林樹葉、橋墩爬滿藤蔓；可可樹、竹子、西瓜。
+  叢林地下車站　biomesta_261118:jungle_ug_station　（24×30×13）
+  叢林隧道段　biomesta_261118:jungle_ug_track　（16×30×13）
+  叢林升降坡道　biomesta_261118:jungle_ramp　（32×30×13）
+  叢林高架段　biomesta_261118:jungle_el_track　（16×30×13）
+  叢林高架車站　biomesta_261118:jungle_el_station　（24×30×13）
+  一鍵載入整條示範線：/function bst/jungle（平放）　/function bst/jungle_embed（嵌入地面）
+
+【針葉林】圓石與雲杉、深色橡木屋頂；灰化土、甜莓叢、雲杉。
+  針葉林地下車站　biomesta_261118:taiga_ug_station　（24×30×13）
+  針葉林隧道段　biomesta_261118:taiga_ug_track　（16×30×13）
+  針葉林升降坡道　biomesta_261118:taiga_ramp　（32×30×13）
+  針葉林高架段　biomesta_261118:taiga_el_track　（16×30×13）
+  針葉林高架車站　biomesta_261118:taiga_el_station　（24×30×13）
+  一鍵載入整條示範線：/function bst/taiga（平放）　/function bst/taiga_embed（嵌入地面）
+
+【樺木林】閃長岩白牆、樺木柱、氧化銅綠屋頂（已上蠟不會再變色）；鈴蘭、樺樹。
+  樺木林地下車站　biomesta_261118:birch_ug_station　（24×30×13）
+  樺木林隧道段　biomesta_261118:birch_ug_track　（16×30×13）
+  樺木林升降坡道　biomesta_261118:birch_ramp　（32×30×13）
+  樺木林高架段　biomesta_261118:birch_el_track　（16×30×13）
+  樺木林高架車站　biomesta_261118:birch_el_station　（24×30×13）
+  一鍵載入整條示範線：/function bst/birch（平放）　/function bst/birch_embed（嵌入地面）
+
+【黑森林】深板岩圓石、黑橡木、深板岩瓦屋頂、樺木腰帶；巨型紅蘑菇、黑橡樹。
+  黑森林地下車站　biomesta_261118:darkforest_ug_station　（24×30×13）
+  黑森林隧道段　biomesta_261118:darkforest_ug_track　（16×30×13）
+  黑森林升降坡道　biomesta_261118:darkforest_ramp　（32×30×13）
+  黑森林高架段　biomesta_261118:darkforest_el_track　（16×30×13）
+  黑森林高架車站　biomesta_261118:darkforest_el_station　（24×30×13）
+  一鍵載入整條示範線：/function bst/darkforest（平放）　/function bst/darkforest_embed（嵌入地面）
+
+【沼澤】泥磚、雲杉木地板、苔石磚屋頂；水窪與睡蓮、藍色蘭花、垂藤橡樹。
+  沼澤地下車站　biomesta_261118:swamp_ug_station　（24×30×13）
+  沼澤隧道段　biomesta_261118:swamp_ug_track　（16×30×13）
+  沼澤升降坡道　biomesta_261118:swamp_ramp　（32×30×13）
+  沼澤高架段　biomesta_261118:swamp_el_track　（16×30×13）
+  沼澤高架車站　biomesta_261118:swamp_el_station　（24×30×13）
+  一鍵載入整條示範線：/function bst/swamp（平放）　/function bst/swamp_embed（嵌入地面）
+
+【紅樹林】泥磚與紅樹林木、懸根垂掛甲板下；泥地、紅樹林胎生苗、氣根樹。
+  紅樹林地下車站　biomesta_261118:mangrove_ug_station　（24×30×13）
+  紅樹林隧道段　biomesta_261118:mangrove_ug_track　（16×30×13）
+  紅樹林升降坡道　biomesta_261118:mangrove_ramp　（32×30×13）
+  紅樹林高架段　biomesta_261118:mangrove_el_track　（16×30×13）
+  紅樹林高架車站　biomesta_261118:mangrove_el_station　（24×30×13）
+  一鍵載入整條示範線：/function bst/mangrove（平放）　/function bst/mangrove_embed（嵌入地面）
+
+【莽原】赤陶與金合歡木、低坡屋頂；乾草堆、金合歡樹。
+  莽原地下車站　biomesta_261118:savanna_ug_station　（24×30×13）
+  莽原隧道段　biomesta_261118:savanna_ug_track　（16×30×13）
+  莽原升降坡道　biomesta_261118:savanna_ramp　（32×30×13）
+  莽原高架段　biomesta_261118:savanna_el_track　（16×30×13）
+  莽原高架車站　biomesta_261118:savanna_el_station　（24×30×13）
+  一鍵載入整條示範線：/function bst/savanna（平放）　/function bst/savanna_embed（嵌入地面）
+
+【惡地】紅砂岩、平頂天窗、地層是彩色陶瓦條紋（在路塹剖面看得到）；仙人掌、枯灌木。
+  惡地地下車站　biomesta_261118:badlands_ug_station　（24×30×13）
+  惡地隧道段　biomesta_261118:badlands_ug_track　（16×30×13）
+  惡地升降坡道　biomesta_261118:badlands_ramp　（32×30×13）
+  惡地高架段　biomesta_261118:badlands_el_track　（16×30×13）
+  惡地高架車站　biomesta_261118:badlands_el_station　（24×30×13）
+  一鍵載入整條示範線：/function bst/badlands（平放）　/function bst/badlands_embed（嵌入地面）
+
+【蘑菇島】蘑菇柄柱、紅蘑菇圓頂屋頂、菌光燈；菌絲地面、巨型紅／棕蘑菇。
+  蘑菇島地下車站　biomesta_261118:mushroom_ug_station　（24×30×13）
+  蘑菇島隧道段　biomesta_261118:mushroom_ug_track　（16×30×13）
+  蘑菇島升降坡道　biomesta_261118:mushroom_ramp　（32×30×13）
+  蘑菇島高架段　biomesta_261118:mushroom_el_track　（16×30×13）
+  蘑菇島高架車站　biomesta_261118:mushroom_el_station　（24×30×13）
+  一鍵載入整條示範線：/function bst/mushroom（平放）　/function bst/mushroom_embed（嵌入地面）
+
+【海洋】海磷石、玻璃拱頂；地下段是「海底玻璃隧道」，上方就是海水；高架橋墩立在海中，出入口亭蓋在海上平台。
+  海洋地下車站　biomesta_261118:ocean_ug_station　（24×30×13）
+  海洋隧道段　biomesta_261118:ocean_ug_track　（16×30×13）
+  海洋升降坡道　biomesta_261118:ocean_ramp　（32×30×13）
+  海洋高架段　biomesta_261118:ocean_el_track　（16×30×13）
+  海洋高架車站　biomesta_261118:ocean_el_station　（24×30×13）
+  一鍵載入整條示範線：/function bst/ocean（平放）　/function bst/ocean_embed（嵌入地面）
+
+【櫻花林】方解石白牆、櫻花木柱、深板岩瓦翹簷和風屋頂；粉紅花瓣、櫻花樹。
+  櫻花林地下車站　biomesta_261118:cherry_ug_station　（24×30×13）
+  櫻花林隧道段　biomesta_261118:cherry_ug_track　（16×30×13）
+  櫻花林升降坡道　biomesta_261118:cherry_ramp　（32×30×13）
+  櫻花林高架段　biomesta_261118:cherry_el_track　（16×30×13）
+  櫻花林高架車站　biomesta_261118:cherry_el_station　（24×30×13）
+  一鍵載入整條示範線：/function bst/cherry（平放）　/function bst/cherry_embed（嵌入地面）
+
+【蒼白之園】凝灰岩磚與蒼白橡木、樹脂磚屋頂；蒼白苔蘚、眼眸花、垂掛蒼白苔蘚。
+  蒼白之園地下車站　biomesta_261118:palegarden_ug_station　（24×30×13）
+  蒼白之園隧道段　biomesta_261118:palegarden_ug_track　（16×30×13）
+  蒼白之園升降坡道　biomesta_261118:palegarden_ramp　（32×30×13）
+  蒼白之園高架段　biomesta_261118:palegarden_el_track　（16×30×13）
+  蒼白之園高架車站　biomesta_261118:palegarden_el_station　（24×30×13）
+  一鍵載入整條示範線：/function bst/palegarden（平放）　/function bst/palegarden_embed（嵌入地面）
+
+【下界】磨製黑石磚、緋紅木、紅地獄磚屋頂、靈魂燈籠；緋紅菌岩、緋紅蕈與垂淚藤。
+  下界地下車站　biomesta_261118:nether_ug_station　（24×30×13）
+  下界隧道段　biomesta_261118:nether_ug_track　（16×30×13）
+  下界升降坡道　biomesta_261118:nether_ramp　（32×30×13）
+  下界高架段　biomesta_261118:nether_el_track　（16×30×13）
+  下界高架車站　biomesta_261118:nether_el_station　（24×30×13）
+  一鍵載入整條示範線：/function bst/nether（平放）　/function bst/nether_embed（嵌入地面）
+
+【附圖】
+生態系車站合集_整體渲染.png：16 條示範線（東南上空）。
+生態系車站合集_內部剖視.png：每個生態系的地下車站（剖去天花板）與高架車站（剖去屋頂）。
+兩張圖都依方塊資料繪製，不是遊戲截圖；樓梯、半磚、柵欄、植物等以簡化方塊表示。
+
+【測試狀態】
+已通過：80 件 NBT 重新解析與逐格比對、所有方塊 ID 與 state 對照官方方塊表；
+每件雙軌逐格檢查（軌道存在、下方支承、上方 2 格淨空、坡道方向、動力段分隔）；
+兩種車站「月台 → 地面」步行可達檢查；重力方塊（沙、紅沙）下方有支撐、吊燈上方有方塊。
+尚未在 Minecraft 遊戲內實測。海洋模組的海水是結構裡的水源方塊，放在陸地上時邊緣可能會流出一點水。
